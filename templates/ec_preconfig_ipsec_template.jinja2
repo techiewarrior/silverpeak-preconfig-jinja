@@ -1,0 +1,351 @@
+applianceInfo:
+  hostname: {{ hostname }}
+  group: {{ group }}
+  site: {{ site }}
+  networkRole: {{ networkRole }}
+  region: {{ region }}
+  location:
+    address: {{ address }}
+    address2: {{ address2 }}
+    city: {{ city }}
+    state: {{ state }}
+    zipCode: {{ zipCode }}
+    country: {{ country }}
+  contact:
+    name: {{ name }}
+    email: {{ email }}
+    phoneNumber: "{{ phoneNumber }}"
+
+templateGroups:
+  groups:
+    {%+ if template_group_1 != "" -%}
+        - {{ template_group_1 }}
+    {%+ endif -%}
+    {%+ if template_group_2 != "" -%}
+        - {{ template_group_2 }}
+    {%+ endif -%}
+    {%+ if template_group_3 != "" -%}
+        - {{ template_group_3 }}
+    {%+ endif -%}
+    {%+ if template_group_4 != "" -%}
+        - {{ template_group_4 }}
+    {%+ endif %}
+
+businessIntentOverlays:
+    overlays:
+    {%+ if overlay_1 != "" -%}
+        - {{ overlay_1 }}
+    {%+ endif -%}
+    {%+ if overlay_2 != "" -%}
+        - {{ overlay_2 }}
+    {%+ endif -%}
+    {%+ if overlay_3 != "" -%}
+        - {{ overlay_3 }}
+    {%+ endif -%}
+    {%+ if overlay_4 != "" -%}
+        - {{ overlay_4 }}
+    {%+ endif -%}
+    {%+ if overlay_5 != "" -%}
+        - {{ overlay_5 }}
+    {%+ endif -%}
+    {%+ if overlay_6 != "" -%}
+        - {{ overlay_6 }}
+    {%+ endif -%}
+    {%+ if overlay_7 != "" -%}
+        - {{ overlay_7 }}
+    {%+ endif %}
+
+deploymentInfo:
+  deploymentMode: inline-router
+  totalOutboundBandwidth: {{ totalOutboundBandwidth }}
+  totalInboundBandwidth: {{ totalInboundBandwidth }}
+  shapeInboundTraffic: true
+  passThroughShapedTraffic:
+    outboundMaxBandwidth: {{ outboundMaxBandwidth }}
+
+  deploymentInterfaces:
+{%+ if LAN_INT1_NAME != "" %}
+    - interfaceName: {{ LAN_INT1_NAME }}
+      interfaceType: lan
+      interfaceComment: {{ LAN_INT1_DESC }}
+      ipAddressMask: {{ LAN_INT1_IPMASK }}
+    {%- if LAN_INT1_NEXTHOP != "" %}
+      nexthop: {{ LAN_INT1_NEXTHOP }}
+    {%- endif -%}
+    {%- if LAN_INT1_SEGMENT != "" %}
+      segment: {{ LAN_INT1_SEGMENT }}
+    {%- endif -%}
+    {%+ if LAN_INT1_ZONE != "" %}
+      zone: {{ LAN_INT1_ZONE }}
+    {%+ endif -%}
+{%+ endif %}
+
+{%+ if LAN_INT2_NAME != "" %}
+    - interfaceName: {{ LAN_INT2_NAME }}
+      interfaceType: lan
+      interfaceComment: {{ LAN_INT2_DESC }}
+      ipAddressMask: {{ LAN_INT2_IPMASK }}
+    {%- if LAN_INT2_NEXTHOP != "" %}
+      nexthop: {{ LAN_INT2_NEXTHOP }}
+    {%- endif -%}
+    {%- if LAN_INT2_SEGMENT != "" %}
+      segment: {{ LAN_INT2_SEGMENT }}
+    {%- endif -%}
+    {%+ if LAN_INT2_ZONE != "" %}
+      zone: {{ LAN_INT2_ZONE }}
+    {%+ endif -%}
+{%+ endif %}
+
+{%+ if LAN_INT3_NAME != "" %}
+    - interfaceName: {{ LAN_INT3_NAME }}
+      interfaceType: lan
+      interfaceComment: {{ LAN_INT3_DESC }}
+      ipAddressMask: {{ LAN_INT3_IPMASK }}
+    {%- if LAN_INT3_NEXTHOP != "" %}
+      nexthop: {{ LAN_INT3_NEXTHOP }}
+    {%- endif -%}
+    {%- if LAN_INT3_SEGMENT != "" %}
+      segment: {{ LAN_INT3_SEGMENT }}
+    {%- endif -%}
+    {%+ if LAN_INT3_ZONE != "" %}
+      zone: {{ LAN_INT3_ZONE }}
+    {%+ endif -%}
+{%+ endif %}
+
+
+{%+ if WAN_INT1_NAME != "" %}
+    - interfaceName: {{ WAN_INT1_NAME }}
+      interfaceType: wan
+      interfaceComment: {{ WAN_INT1_DESC }}
+      interfaceLabel: {{ WAN_INT1_LABEL }}
+      outboundMaxBandwidth: {{ WAN_INT1_OUTBOUND_MAX }}
+      inboundMaxBandwidth: {{ WAN_INT1_INBOUND_MAX }}
+      {%+ if WAN_INT1_IPMASK != "" -%}
+      ipAddressMask: {{ WAN_INT1_IPMASK }}
+      nextHop: {{ WAN_INT1_NEXTHOP }}
+      {%+ endif -%}
+      firewallMode: {{ WAN_INT1_FIREWALL_MODE }}
+      behindNat: {{ WAN_INT1_NAT }}
+      zone: {{ WAN_INT1_ZONE }}
+{%+ endif -%}
+
+
+{%+ if CONFIGURE_DHCP == 'TRUE' %}
+
+  dhcpInfo:
+
+  {%+ if DHCP_INT1_NAME != "" %}
+
+    - dhcpInterfaceName: {{ DHCP_INT1_NAME }}
+      dhcpType: {{ DHCP_INT1_TYPE }}
+      {%- if DHCP_INT1_TYPE == "relay" %}
+      dhcpProxyServers:
+        - {{ DHCP_RELAY_SERVER_1 }}
+        - {{ DHCP_RELAY_SERVER_2 }}
+      enableOptions82: true
+      options82Policy: forward
+      {%- elif DHCP_INT1_TYPE == "server" %}
+      dhcpAddressMask: {{  DHCP_INT1_NETWORK }}
+      startIpAddress: {{  DHCP_INT1_START_ADDRESS }}
+      endIpAddress: {{  DHCP_INT1_END_ADDRESS }}
+      gatewayIpAddress: {{  DHCP_INT1_GATEWAY }}
+      dnsServers:
+        - {{ DHCP_INT1_DNS_SERVER_1 }}
+        - {{ DHCP_INT1_DNS_SERVER_2 }}
+      ntpServers:
+        - {{ DHCP_INT1_NTP_SERVER_1 }}
+      maximumLease: {{  DHCP_MAX_LEASE  }}
+      defaultLease: {{  DHCP_DEFAULT_LEASE  }}
+      options:
+      {%- if DHCP_INT1_OPTION1 != "" %}
+        - option: {{  DHCP_INT1_OPTION1 }}
+          value:  {{  DHCP_INT1_OPTION1_VALUE  }}
+      {%+ endif -%}
+      {%- if DHCP_INT1_OPTION2 != "" %}
+        - option: {{  DHCP_INT1_OPTION2 }}
+          value:  {{  DHCP_INT1_OPTION2_VALUE  }}
+      {%+ endif -%}
+      {%+ endif -%}
+      {% endif %}
+
+
+    {%+ if DHCP_INT2_NAME != "" -%}
+
+    - dhcpInterfaceName: {{ DHCP_INT2_NAME }}
+      dhcpType: {{ DHCP_INT2_TYPE }}
+      {%- if DHCP_INT2_TYPE == "relay" %}
+      dhcpProxyServers:
+        - {{ DHCP_RELAY_SERVER_1 }}
+        - {{ DHCP_RELAY_SERVER_2 }}
+      enableOptions82: true
+      options82Policy: forward
+      {%- elif DHCP_INT2_TYPE == "server" %}
+      dhcpAddressMask: {{  DHCP_INT2_NETWORK }}
+      startIpAddress: {{  DHCP_INT2_START_ADDRESS }}
+      endIpAddress: {{  DHCP_INT2_END_ADDRESS }}
+      gatewayIpAddress: {{  DHCP_INT2_GATEWAY }}
+      dnsServers:
+        - {{ DHCP_INT2_DNS_SERVER_1 }}
+        - {{ DHCP_INT2_DNS_SERVER_2 }}
+      ntpServers:
+        - {{ DHCP_INT2_NTP_SERVER_1 }}
+      maximumLease: {{  DHCP_MAX_LEASE  }}
+      defaultLease: {{  DHCP_DEFAULT_LEASE  }}
+      options:
+      {%- if DHCP_INT2_OPTION1 != "" %}
+        - option: {{  DHCP_INT2_OPTION1 }}
+          value:  {{  DHCP_INT2_OPTION1_VALUE  }}
+      {%+ endif -%}
+      {%- if DHCP_INT2_OPTION2 != "" %}
+        - option: {{  DHCP_INT2_OPTION2 }}
+          value:  {{  DHCP_INT2_OPTION2_VALUE  }}
+      {%+ endif -%}
+      {%+ endif -%}
+      {% endif %}
+
+    {%+ if DHCP_INT3_NAME != "" -%}
+
+    - dhcpInterfaceName: {{ DHCP_INT3_NAME }}
+      dhcpType: {{ DHCP_INT3_TYPE }}
+      {%- if DHCP_INT3_TYPE == "relay" %}
+      dhcpProxyServers:
+        - {{ DHCP_RELAY_SERVER_1 }}
+        - {{ DHCP_RELAY_SERVER_2 }}
+      enableOptions82: true
+      options82Policy: forward
+      {%- elif DHCP_INT3_TYPE == "server" %}
+      dhcpAddressMask: {{  DHCP_INT3_NETWORK }}
+      startIpAddress: {{  DHCP_INT3_START_ADDRESS }}
+      endIpAddress: {{  DHCP_INT3_END_ADDRESS }}
+      gatewayIpAddress: {{  DHCP_INT3_GATEWAY }}
+      dnsServers:
+        - {{ DHCP_INT3_DNS_SERVER_1 }}
+        - {{ DHCP_INT3_DNS_SERVER_2 }}
+      ntpServers:
+        - {{ DHCP_INT3_NTP_SERVER_1 }}
+      maximumLease: {{  DHCP_MAX_LEASE  }}
+      defaultLease: {{  DHCP_DEFAULT_LEASE  }}
+      options:
+      {%- if DHCP_INT3_OPTION1 != "" %}
+        - option: {{  DHCP_INT3_OPTION1 }}
+          value:  {{  DHCP_INT3_OPTION1_VALUE  }}
+      {%+ endif -%}
+      {%- if DHCP_INT3_OPTION2 != "" %}
+        - option: {{  DHCP_INT3_OPTION2 }}
+          value:  {{  DHCP_INT3_OPTION2_VALUE  }}
+      {%+ endif -%}
+      {%+ endif -%}
+      {%+ endif -%}
+
+{%+ endif %}
+
+localRoutes:
+  useSharedSubnetInfo: true
+  advertiseLocalLanSubnets: true
+  advertiseLocalWanSubnets: false
+  localMetric: 50
+  localCommunities:
+  redistOspfToSubnetShare: false
+  ospfRedistMetric: 0
+  ospfRedistTag: 0
+  filterRoutesWithLocalASN: true
+  {%- if silverpeak_bgp_asn != "" %}
+  redistToSDwanFabricRouteMap: "allow_bgp_rtmap_to_subsh"
+  {% else %}
+  redistToSDwanFabricRouteMap: "default_rtmap_to_subsh"
+  {% endif %}
+  {%- if static_route_1_subnet != "" %}
+  - routeIpSubnet: {{ static_route_1_subnet }}
+    nextHop: {{ static_route_1_nexthop }}
+    interfaceName: {{ static_route_1_interface }}
+    metric: {{ static_route_1_metric }}
+    advertise: {{ static_route_1_advertise }}
+    advertiseToBgp: false
+    advertiseToOspf: false
+    tag: ANY
+    comment: {{ static_route_1_comment }}
+  {% endif %}
+
+ecLicensing:
+
+  useDefaultAccount: true
+  bandwidthLevel: {{ LICENSE_BANDWIDTH }}
+  boost: {{ LICENSE_BOOST }}
+
+{% if silverpeak_bgp_asn != "" %}
+bgpSystemConfig:
+  enable: true
+  asn: {{ silverpeak_bgp_asn }}
+  routerId: {{ silverpeak_bgp_id }}
+  enableGracefulRestart: false
+  maxRestartTime: 120
+  maxStalePathTime: 150
+  redistToSilverPeak: true
+  propagateAsPath: true
+  redistOspfToBgp: false
+  filterTag: 0
+
+  neighbors:
+    - peerIpAddress: {{ switch_bgp_ip }}
+      enableImports: true
+      peerAsn: {{ switch_bgp_asn }}
+      peerType: Branch
+      enableNeighbor: true
+      nextHopSelf: false
+      inboundRouteMap : default_rtmap_bgp_inbound_br
+      outboundRouteMap : default_rtmap_bgp_outbound_br
+      keepAlive: 30
+      holdTime: 90
+      password:
+{% endif %}
+
+
+{%+ if WAN_INT1_NAME != "" %}
+    - interfaceName: {{ WAN_INT1_NAME }}
+      interfaceType: wan
+      interfaceComment: {{ WAN_INT1_DESC }}
+      interfaceLabel: {{ WAN_INT1_LABEL }}
+      outboundMaxBandwidth: {{ WAN_INT1_OUTBOUND_MAX }}
+      inboundMaxBandwidth: {{ WAN_INT1_INBOUND_MAX }}
+      {%+ if WAN_INT1_IPMASK != "" -%}
+      ipAddressMask: {{ WAN_INT1_IPMASK }}
+      nextHop: {{ WAN_INT1_NEXTHOP }}
+      {%+ endif -%}
+      firewallMode: {{ WAN_INT1_FIREWALL_MODE }}
+      behindNat: {{ WAN_INT1_NAT }}
+      zone: {{ WAN_INT1_ZONE }}
+{%+ endif -%}
+
+
+{% if IPSEC_TUNNEL_1 != "" %}
+tunnelConfiguration:
+  tunnels:
+{%+ if IPSEC_TUNNEL_1 != "" %}
+    - tunnelName: {{ IPTUN_1_NAME }}
+      tunnelType: {{ IPTUN_1_TYPE }}
+      tunnelEncap: ipsec
+      admin: Up
+      localIp: {{ IPTUN_1_LOCALIP }}
+      remoteIp: {{ IPTUN_1_REMOTEIP }}
+      natMode: none
+      peerName: {{ IPTUN_1_PEERNAME }}
+      enableAutoMaxBandwidth: False
+      maxBandwidth: {{ IPTUN_1_MAXBANDWIDTH }}
+      ikeConfig:
+        presharedKey: {{ IPTUN_1_PSK }}
+        ikeAuthAlgorithm: sha1
+        ikeEncryptAlgorithm: aes256
+        diffHellManGroup: 2
+        ikeLifetime: 360
+        deadPeerDelayTime: 10
+        deadPeerRetryCount: 3
+        identifierType: {{ IPSEC_TUNNEL_IDTYPE }}
+        identifierValue: {{ IPSEC_TUNNEL_IDVALUE }}
+        exchangeMode: main
+      ipsecConfig:
+        ipsecAuthAlgorithm: sha1
+        ipsecEncryptAlgorithm: aes256
+        enableIpSecArcWindow: True
+        ipsecLifetime: 360
+        ipsecLifetimeBytes: 0
+{% endif %}

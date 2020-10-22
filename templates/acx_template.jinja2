@@ -1,0 +1,123 @@
+hostname {{ switch_hostname }}
+user {{ switch_user }} group administrators password plaintext {{ switch_password }}
+ssh server vrf mgmt
+
+{% if switch_mgmt_ipmask != "" %}
+int mgmt
+    ip static {{ switch_mgmt_ipmask }}
+    default-gateway {{ switch_mgmt_gw }}
+{% endif %}
+
+
+vlan 1
+{% if vlan_a_id != "" %}
+vlan {{ vlan_a_id }}
+    name {{ vlan_a_name }}
+{% endif %}
+{% if vlan_b_id != "" %}
+vlan {{ vlan_b_id }}
+    name {{ vlan_b_name }}
+{% endif %}
+{% if vlan_c_id != "" %}
+vlan {{ vlan_c_id }}
+    name {{ vlan_c_name }}
+{% endif %}
+{% if vlan_d_id != "" %}
+vlan {{ vlan_d_id }}
+    name {{ vlan_d_name }}
+{% endif %}
+
+{% if vlan_a_ipmask != "" %}
+interface vlan{{ vlan_a_id }}
+    desc {{ vlan_a_name }}
+    ip address {{ vlan_a_ipmask }}
+{% endif %}
+
+{% if vlan_b_ipmask != "" %}
+interface vlan{{ vlan_b_id }}
+    desc {{ vlan_b_name }}
+    ip address {{ vlan_b_ipmask }}
+{% endif %}
+
+{% if vlan_c_ipmask != "" %}
+interface vlan{{ vlan_c_id }}
+    desc {{ vlan_c_name }}
+    ip address {{ vlan_c_ipmask }}
+{% endif %}
+
+{% if vlan_d_ipmask != "" %}
+interface vlan{{ vlan_d_id }}
+    desc {{ vlan_d_name }}
+    ip address {{ vlan_d_ipmask }}
+{% endif %}
+
+
+interface 1/1/1 
+    {% if int_1_1_1_ipmask != "" or int_1_1_1_vlan != "" %}
+    no shutdown
+    description {{ int_1_1_1_desc }}
+    {% endif %}
+    {% if int_1_1_1_ipmask != "" %}
+    ip address {{ int_1_1_1_ipmask }}
+    {% elif int_1_1_1_vlan != "" %}
+    no routing
+    vlan access {{ int_1_1_1_vlan }}
+    {% endif %}
+interface 1/1/2 
+{% if int_1_1_2_ipmask != "" or int_1_1_2_vlan != "" %}
+    no shutdown
+    description {{ int_1_1_2_desc }}
+    {% endif %}
+    {% if int_1_1_2_ipmask != "" %}
+    ip address {{ int_1_1_2_ipmask }}
+    {% elif int_1_1_2_vlan != "" %}
+    no routing
+    vlan access {{ int_1_1_2_vlan }}
+    {% endif %}
+interface 1/1/3
+{% if int_1_1_3_ipmask != "" or int_1_1_3_vlan != "" %}
+    no shutdown
+    description {{ int_1_1_3_desc }}
+    {% endif %}
+    {% if int_1_1_3_ipmask != "" %}
+    ip address {{ int_1_1_3_ipmask }}
+    {% elif int_1_1_3_vlan != "" %}
+    no routing
+    vlan access {{ int_1_1_3_vlan }}
+    {% endif %}
+interface 1/1/4
+{% if int_1_1_4_ipmask != "" or int_1_1_4_vlan != "" %}
+    no shutdown
+    description {{ int_1_1_4_desc }}
+    {% endif %}
+    {% if int_1_1_4_ipmask != "" %}
+    ip address {{ int_1_1_4_ipmask }}
+    {% elif int_1_1_4_vlan != "" %}
+    no routing
+    vlan access {{ int_1_1_4_vlan }}
+    {% endif %}
+
+{% if switch_bgp_asn != "" %}
+router bgp {{ switch_bgp_asn }}
+    bgp router-id {{ switch_bgp_id }}
+    neighbor {{ silverpeak_bgp_ip }} remote-as {{ silverpeak_bgp_asn }}
+    address-family ipv4 unicast
+        neighbor {{ silverpeak_bgp_ip }} activate
+        neighbor {{ silverpeak_bgp_ip }} soft-reconfiguration inbound
+        {% if vlan_a_ipmask != "" %}
+        network {{ vlan_a_network }}
+        {% endif %}
+        {% if vlan_b_ipmask != "" %}
+        network {{ vlan_b_network }}
+        {% endif %}
+        {% if vlan_c_ipmask != "" %}
+        network {{ vlan_c_network }}
+        {% endif %}
+        {% if vlan_d_ipmask != "" %}
+        network {{ vlan_d_network }}
+        {% endif %}
+    exit-address-family
+{% endif %}
+
+
+https-server vrf mgmt
