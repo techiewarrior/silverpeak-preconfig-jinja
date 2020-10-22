@@ -29,6 +29,5 @@
   - TFTP Server (configs will be posted via SFTP, Switches will retrieve via TFTP)
   - ESXi Server (Where the ArubaOS-CX virtual switches reside for power-on/off if containing ACX in hostname)
 
-'''
-pip3 install -r requirements.txt
-'''
+4. pip3 install -r requirements.txt
+
