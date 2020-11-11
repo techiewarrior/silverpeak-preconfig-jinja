@@ -334,5 +334,5 @@ ssh.close()
 print(tftp_server + ": SFTP logout success")
 
 #### Wait and power on the blank ACX Switches
-time.sleep(100)
+time.sleep(120)
 esxi.acx_switch_power_on()
