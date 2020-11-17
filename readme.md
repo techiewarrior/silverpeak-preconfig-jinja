@@ -1,5 +1,13 @@
 # Zero Touch Provisioning Demo with Silver Peak and Aruba
 
+##### What's necessary for the demo but isn't included here:
+
+- ESXi server with portgroups for connecting the virtual Edge Connects and ArubaOS-CX switches
+- TFTP server with IP used in the source CSV file
+- 1 "head-end" Edge Connect to facilitate access from demo branches to TFTP server
+- 2+ "branch" Edge Connects and ArubaOS-CX switches
+- Adding appropriate details in .env file for connecting to Silver Peak Orchestrator and ESXi server
+
 ### Demo Script:
 ##### ztp-demo.py
 
