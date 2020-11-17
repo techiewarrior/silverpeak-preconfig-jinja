@@ -1,9 +1,6 @@
 
 colored==1.4.2
 Jinja2==2.11.2
-netmiko==3.3.2
-paramiko==2.7.2
 python-dotenv==0.14.0
 PyYAML==5.3.1
 requests==2.24.0
-vmwc==1.0.4
