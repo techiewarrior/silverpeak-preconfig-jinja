@@ -10,4 +10,4 @@ __pycache__/
 *.env
 
 # Config Outputs
-ztp_config_outputs/
+preconfig_outputs/
