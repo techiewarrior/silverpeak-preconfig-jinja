@@ -52,6 +52,9 @@ while correct_file != "y":
     else:
         pass
 
+# Default autoApply to False
+autoApply = False
+
 # Check if user wants to upload preconfigs to Orchestrator
 upload_to_orch = input("Do you want to upload the generated Preconfigs to Orchestrator?(y/n, other to quit): ")
 if upload_to_orch == "y":

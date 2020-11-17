@@ -1,0 +1,84 @@
+applianceInfo:
+  hostname: ACTON-SDW01
+  group: ACX-ZTP-DEMO
+  site: ACTON
+  networkRole: hub
+  region: 
+  location:
+    address: 472 Main Street
+    address2: 
+    city: Acton
+    state: MA
+    zipCode: 1720
+    country: US
+  contact:
+    name: john doe
+    email: jdoe@company.tld
+    phoneNumber: "123-555-1234"
+
+templateGroups:
+  groups:
+    - Default Template Group
+    - Global ZBFW Policy
+    - Global-Store
+    - ZTP_QOS_DEMO
+    
+
+businessIntentOverlays:
+    overlays:
+    - REALTIME
+    - GUEST
+    - CRITICAL
+    
+
+deploymentInfo:
+  deploymentMode: inline-router
+  totalOutboundBandwidth: 10000
+  totalInboundBandwidth: 10000
+  shapeInboundTraffic: true
+  passThroughShapedTraffic:
+    outboundMaxBandwidth: 10000
+
+  deploymentInterfaces:
+
+    - interfaceName: lan0
+      interfaceType: lan
+      interfaceComment: Link to DemoNet
+      ipAddressMask: 10.1.40.2/24
+
+
+
+
+
+
+
+    - interfaceName: wan0
+      interfaceType: wan
+      interfaceComment: Internet
+      interfaceLabel: INET
+      outboundMaxBandwidth: 10000
+      inboundMaxBandwidth: 10000
+      firewallMode: statefulSNAT
+      behindNat: none
+      zone: Public
+
+
+localRoutes:
+  useSharedSubnetInfo: true
+  advertiseLocalLanSubnets: true
+  advertiseLocalWanSubnets: false
+  localMetric: 50
+  localCommunities:
+  redistOspfToSubnetShare: false
+  ospfRedistMetric: 0
+  ospfRedistTag: 0
+  filterRoutesWithLocalASN: true
+  redistToSDwanFabricRouteMap: "default_rtmap_to_subsh"
+  
+
+ecLicensing:
+
+  useDefaultAccount: true
+  bandwidthLevel: base
+  boost: 5000
+

@@ -1,0 +1,163 @@
+applianceInfo:
+  hostname: OLDBRIDGE-SDW01
+  group: ACX-ZTP-DEMO
+  site: OLDBRIDGE
+  networkRole: non-hub
+  region: 
+  location:
+    address: 810 North Ridgeview Ave.
+    address2: 
+    city: Old Bridge
+    state: NJ
+    zipCode: 8857
+    country: US
+  contact:
+    name: john doe
+    email: jdoe@company.tld
+    phoneNumber: "123-555-1234"
+
+templateGroups:
+  groups:
+    - Default Template Group
+    - Global ZBFW Policy
+    - Global-Store
+    - ZTP_QOS_DEMO
+    
+
+businessIntentOverlays:
+    overlays:
+    - REALTIME
+    - GUEST
+    - CRITICAL
+    
+
+deploymentInfo:
+  deploymentMode: inline-router
+  totalOutboundBandwidth: 50000
+  totalInboundBandwidth: 50000
+  shapeInboundTraffic: true
+  passThroughShapedTraffic:
+    outboundMaxBandwidth: 50000
+
+  deploymentInterfaces:
+
+    - interfaceName: lan0
+      interfaceType: lan
+      interfaceComment: mgmt net
+      ipAddressMask: 10.101.254.1/27
+
+
+    - interfaceName: lan1
+      interfaceType: lan
+      interfaceComment: ACX BGP Peer
+      ipAddressMask: 10.101.90.1/29
+
+
+    - interfaceName: lan2
+      interfaceType: lan
+      interfaceComment: Guest
+      ipAddressMask: 10.101.30.1/24
+      segment: Guest
+      zone: Guest
+    
+
+
+
+    - interfaceName: wan0
+      interfaceType: wan
+      interfaceComment: Internet
+      interfaceLabel: INET
+      outboundMaxBandwidth: 50000
+      inboundMaxBandwidth: 50000
+      firewallMode: statefulSNAT
+      behindNat: none
+      zone: Public
+
+
+  dhcpInfo:
+
+  
+
+    - dhcpInterfaceName: lan0
+      dhcpType: server
+      dhcpAddressMask: 10.101.254.0/27
+      startIpAddress: 10.101.254.2
+      endIpAddress: 10.101.254.5
+      gatewayIpAddress: 10.101.254.1
+      dnsServers:
+        - 10.1.20.20
+        - 8.8.8.8
+      ntpServers:
+        - 204.2.134.163
+      maximumLease: 24
+      defaultLease: 24
+      options:
+        - option: 66
+          value:  10.1.40.100
+      
+        - option: 67
+          value:  OLDBRIDGE-SWT01.cfg
+      
+
+
+    
+
+    - dhcpInterfaceName: lan2
+      dhcpType: server
+      dhcpAddressMask: 10.101.30.0/24
+      startIpAddress: 10.101.30.10
+      endIpAddress: 10.101.30.100
+      gatewayIpAddress: 10.101.30.1
+      dnsServers:
+        - 8.8.8.8
+        - 1.1.1.1
+      ntpServers:
+        - 204.2.134.163
+      maximumLease: 24
+      defaultLease: 24
+      options:
+
+localRoutes:
+  useSharedSubnetInfo: true
+  advertiseLocalLanSubnets: true
+  advertiseLocalWanSubnets: false
+  localMetric: 50
+  localCommunities:
+  redistOspfToSubnetShare: false
+  ospfRedistMetric: 0
+  ospfRedistTag: 0
+  filterRoutesWithLocalASN: true
+  redistToSDwanFabricRouteMap: "allow_bgp_rtmap_to_subsh"
+  
+
+ecLicensing:
+
+  useDefaultAccount: true
+  bandwidthLevel: base
+  boost: 5000
+
+
+bgpSystemConfig:
+  enable: true
+  asn: 65110
+  routerId: 10.101.90.1
+  enableGracefulRestart: false
+  maxRestartTime: 120
+  maxStalePathTime: 150
+  redistToSilverPeak: true
+  propagateAsPath: true
+  redistOspfToBgp: false
+  filterTag: 0
+
+  neighbors:
+    - peerIpAddress: 10.101.90.2
+      enableImports: true
+      peerAsn: 65111
+      peerType: Branch
+      enableNeighbor: true
+      nextHopSelf: false
+      inboundRouteMap : default_rtmap_bgp_inbound_br
+      outboundRouteMap : default_rtmap_bgp_outbound_br
+      keepAlive: 30
+      holdTime: 90
+      password:
