@@ -1,14 +1,14 @@
 import base64
 
 
-def post(orch, hostname, serial, yaml_text, autoApply):
+def post(orch, hostname, serial, yaml_text):
 	# convert from a string to base64,
 	# then post that b64 output as a string to Orch
 	yaml_upload = yaml_to_b64string(yaml_text)
 	data = {}
 	data['name'] = hostname 
 	data['configData'] = yaml_upload
-	data['autoApply'] = autoApply
+	data['autoApply'] = True
 	data['tag'] = hostname
 	data['serialNum'] = serial
 	r = orch.post("/gms/appliance/preconfiguration/validate", data)

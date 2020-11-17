@@ -12,6 +12,10 @@ import post_yaml_to_orch
 
 # For SFTP Transfer of Switch Config
 import os
+import paramiko
+
+# ESXi VM on/off functions
+from ztp_demo_esxi import esxiHelper
 
 # Console text highlight color parameters
 red_text = colored.fg("red") + colored.attr("bold")
@@ -27,14 +31,28 @@ orch = OrchHelper(str(os.getenv('ORCH_IP_ADDRESS')))
 orch.user = os.getenv('ORCH_USERNAME')
 orch.password = os.getenv('ORCH_PASSWORD')
 
+# Set TFTP login from .env
+tftp_server = str(os.getenv('TFTP_IP_ADDRESS'))
+sftp_user = os.getenv('TFTP_USERNAME')
+sftp_pass = os.getenv('TFTP_PASSWORD')
+
+# Set ESXi login from .env
+esxi = esxiHelper(str(os.getenv('ESXI_IP_ADDRESS')), )
+esxi.user = os.getenv('ESXI_USERNAME')
+esxi.password = os.getenv('ESXI_PASSWORD')
+
 # Retrieve Jinja2 template for generating EdgeConnect Preconfig YAML file
 env = Environment(loader=FileSystemLoader("templates"))
-ec_template_file = "ec_preconfig_template.jinja2"
+ec_template_file = "ec_preconfig_bgp_template.jinja2"
 ec_template = env.get_template(ec_template_file)
 print("Using " + stylize(ec_template_file,blue_text) + " for EdgeConnect jinja template")
+acx_template_file = "acx_template.jinja2"
+acx_template = env.get_template(acx_template_file)
+print("Using " + stylize(acx_template_file,orange_text) + " for Aruba CX jinja template")
+print("\n")
 
 # Local directory for configuration outputs
-local_config_directory = "preconfig_outputs/"
+local_config_directory = "ztp_config_outputs/"
 
 if not os.path.exists(local_config_directory):
     os.makedirs(local_config_directory)
@@ -52,25 +70,15 @@ while correct_file != "y":
     else:
         pass
 
-# Check if user wants to upload preconfigs to Orchestrator
-upload_to_orch = input("Do you want to upload the generated Preconfigs to Orchestrator?(y/n, other to quit): ")
-if upload_to_orch == "y":
-    # Check if user wants to auto-approve appliances matching uploaded preconfigs
-    auto_approve_check = input("Do you want to auto-approve discovered appliances matching the preconfigs?(y/n, other to quit): ")
-    if auto_approve_check == "y":
-        autoApply = True
-    elif auto_approve_check == "n":
-        autoApply = False
-    else:
-        exit()
-elif upload_to_orch == "n":
-    pass
-else:
-    exit()
-
-
 # Connect to Orchestrator
 orch.login()
+
+# Connect to TFTP SERVER
+ssh = paramiko.SSHClient() 
+ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+ssh.connect(tftp_server, username=sftp_user, password=sftp_pass)
+sftp = ssh.open_sftp()
+print(tftp_server + ": SFTP login success")
 
 with open(filename, encoding='utf-8-sig') as csvfile:
     csv_dict = csv.DictReader(csvfile)
@@ -225,51 +233,106 @@ with open(filename, encoding='utf-8-sig') as csvfile:
             with open(local_config_directory + output_filename, 'w') as preconfig_file:
                 write_data = preconfig_file.write(preconfig)
 
-            # If option was chosen, upload preconfig to Orchestrator with selected auto-approve settings
-            if upload_to_orch == "y":
-                post_yaml_to_orch.post(orch, row['hostname'], row['serial_number'], yaml.dump(yaml.load(preconfig,Loader=yaml.SafeLoader), default_flow_style=False), autoApply)
-                print("Posted EC Preconfig " + stylize(row['hostname'],blue_text))
-            else:
-                pass
-
-            row_number = row_number + 1
+            # Post preconfig to Orchestrator
+            post_yaml_to_orch.post(orch, row['hostname'], row['serial_number'], yaml.dump(yaml.load(preconfig,Loader=yaml.SafeLoader), default_flow_style=False))
+            print("Posted EC Preconfig " + stylize(row['hostname'],blue_text))
 
         else:
             print("No hostname for Silver Peak EdgeConnect from row " + stylize(row_number,red_text) + ": no preconfig created")
+
+        # Render ArubaOS-CX Text Configuration File from Jinja template
+
+        if row['switch_hostname'] != "":
+            print("Rendering Aruba CX template for " + stylize(row['switch_hostname'],orange_text) + " from row " + str(row_number))
             
-            row_number = row_number + 1
+            acx_config = acx_template.render(        
+            switch_hostname=row['switch_hostname'],
+            switch_user=row['switch_user'],
+            switch_password=row['switch_password'],
+            switch_mgmt_ipmask=row['switch_mgmt_ipmask'],
+            switch_mgmt_gw=row['switch_mgmt_gw'],
+            vlan_a_id=row['vlan_a_id'],
+            vlan_a_name=row['vlan_a_name'],
+            vlan_a_ipmask=row['vlan_a_ipmask'],
+            vlan_b_id=row['vlan_b_id'],
+            vlan_b_name=row['vlan_b_name'],
+            vlan_b_ipmask=row['vlan_b_ipmask'],
+            vlan_c_id=row['vlan_c_id'],
+            vlan_c_name=row['vlan_c_name'],
+            vlan_c_ipmask=row['vlan_c_ipmask'],
+            vlan_d_id=row['vlan_d_id'],
+            vlan_d_name=row['vlan_d_name'],
+            vlan_d_ipmask=row['vlan_d_ipmask'],
 
+            int_1_1_1_desc=row['int_1_1_1_desc'],
+            int_1_1_1_ipmask=row['int_1_1_1_ipmask'],
+            int_1_1_1_vlan=row['int_1_1_1_vlan'],
+            int_1_1_2_desc=row['int_1_1_2_desc'],
+            int_1_1_2_ipmask=row['int_1_1_2_ipmask'],
+            int_1_1_2_vlan=row['int_1_1_2_vlan'],
+            int_1_1_3_desc=row['int_1_1_3_desc'],
+            int_1_1_3_ipmask=row['int_1_1_3_ipmask'],
+            int_1_1_3_vlan=row['int_1_1_3_vlan'],
+            int_1_1_4_desc=row['int_1_1_4_desc'],
+            int_1_1_4_ipmask=row['int_1_1_4_ipmask'],
+            int_1_1_4_vlan=row['int_1_1_4_vlan'],
 
-# If auto-apply option was chosen, also approve any matching appliances in denied discovered list
-if autoApply == True:
+            switch_bgp_asn=row['switch_bgp_asn'],
+            switch_bgp_id=row['switch_bgp_id'],
+            silverpeak_bgp_asn=row['silverpeak_bgp_asn'],
+            silverpeak_bgp_ip=row['silverpeak_bgp_ip'],
+            vlan_a_network=row['vlan_a_network'],
+            vlan_b_network=row['vlan_b_network'],
+            vlan_c_network=row['vlan_c_network'],
+            vlan_d_network=row['vlan_d_network'],
+            )
 
-    # Retrieve all denied discovered appliances from Orchestrator
-    all_denied_appliances = orch.get_all_denied_appliances().json()
+            output_filename = row['switch_hostname'] + ".cfg"
 
-    # Retrieve all preconfigs from Orchestrator
-    all_preconfigs = orch.get_all_preconfig().json()
+            with open(local_config_directory + output_filename, 'w') as acx_file:
+                write_data = acx_file.write(acx_config)
 
-    # Dict of Denied Appliances to approve with discovered_id and preconfig_id to apply
-    approve_dict = {}
+            sftp.put(local_config_directory + output_filename, "/srv/tftp/" + output_filename)
 
-    # For each EdgeConnect host in the source csv
-    # check against all preconfigs for matching tag
-    # and check against all discovered denied appliances with the same tag that are reachable
-    for host in silverpeak_hostname_list:
-        for preconfig in all_preconfigs:
-            for appliance in all_denied_appliances:
-                if (host == preconfig['name'] == appliance['applianceInfo']['site'] and appliance['applianceInfo']['reachabilityStatus'] == 1):
-                    approve_dict[host] = {'discovered_id':appliance['id'],'preconfig_id':preconfig['id']}
-                else:
-                    pass
+            print("Uploaded Aruba config " + stylize(row['switch_hostname'],orange_text))
+        
+        else:
+            print("No hostname for Aruba CX switch from row " + stylize(row_number,red_text) + ": no switch configuration created")
 
-    # Approve and apply corresponding preconfig for each of the matched appliances
-    # This simulates the functionality of 'auto-approve' with previously denied/deleted devices
-    for appliance in approve_dict:
-        orch.approve_and_apply_preconfig(approve_dict[appliance]['preconfig_id'],approve_dict[appliance]['discovered_id'])
+# Retrieve all denied discovered appliances from Orchestrator
+all_denied_appliances = orch.get_all_denied_appliances().json()
 
-else:
-    pass
+# Retrieve all preconfigs from Orchestrator
+all_preconfigs = orch.get_all_preconfig().json()
+
+# Dict of Denied Appliances to approve with discovered_id and preconfig_id to apply
+approve_dict = {}
+
+# For each EdgeConnect host in the source csv
+# check against all preconfigs for matching tag
+# and check against all discovered denied appliances with the same tag that are reachable
+for host in silverpeak_hostname_list:
+    for preconfig in all_preconfigs:
+        for appliance in all_denied_appliances:
+            if (host == preconfig['name'] == appliance['applianceInfo']['site'] and appliance['applianceInfo']['reachabilityStatus'] == 1):
+                approve_dict[host] = {'discovered_id':appliance['id'],'preconfig_id':preconfig['id']}
+            else:
+                pass
+
+# Approve and apply corresponding preconfig for each of the matched appliances
+# This simulates the functionality of 'auto-approve' with previously denied/deleted devices
+for appliance in approve_dict:
+    orch.approve_and_apply_preconfig(approve_dict[appliance]['preconfig_id'],approve_dict[appliance]['discovered_id'])
+    #print("Approved and added appliance (id:{0}) with preconfig (id:{1})".format(approve_dict[appliance]['discovered_id'],approve_dict[appliance]['preconfig_id']))
 
 # Logout from Orchestrator
 orch.logout()
+
+# Logout from TFTP Server
+sftp.close()
+ssh.close()
+print(tftp_server + ": SFTP logout success")
+
+#### Wait and power on the blank ACX Switches
+time.sleep(140)
+esxi.acx_switch_power_on()
