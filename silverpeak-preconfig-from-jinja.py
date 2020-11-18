@@ -58,6 +58,9 @@ autoApply = False
 # Check if user wants to upload preconfigs to Orchestrator
 upload_to_orch = input("Do you want to upload the generated Preconfigs to Orchestrator?(y/n, other to quit): ")
 if upload_to_orch == "y":
+    # Connect to Orchestrator
+    orch.login()
+
     # Check if user wants to auto-approve appliances matching uploaded preconfigs
     auto_approve_check = input("Do you want to auto-approve discovered appliances matching the preconfigs?(y/n, other to quit): ")
     if auto_approve_check == "y":
@@ -72,8 +75,7 @@ else:
     exit()
 
 
-# Connect to Orchestrator
-orch.login()
+
 
 with open(filename, encoding='utf-8-sig') as csvfile:
     csv_dict = csv.DictReader(csvfile)
@@ -274,5 +276,8 @@ if autoApply == True:
 else:
     pass
 
-# Logout from Orchestrator
-orch.logout()
+# Logout from Orchestrator if logged in
+if upload_to_orch == "y":
+    orch.logout()
+else:
+    pass
