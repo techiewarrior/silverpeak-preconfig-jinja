@@ -13,6 +13,16 @@ import post_yaml_to_orch
 # For SFTP Transfer of Switch Config
 import os
 
+def comma_separate(cs_string_list):
+    # Blank List
+    cs_list = []
+    # Convert string to comma separated list
+    cs_string_list = cs_string_list.split(",")
+    # Strip leading/trailing whitespace from items
+    for item in cs_string_list:
+        cs_list.append(item.strip())
+    return cs_list
+
 # Console text highlight color parameters
 red_text = colored.fg("red") + colored.attr("bold")
 green_text = colored.fg("green") + colored.attr("bold")
@@ -58,6 +68,9 @@ autoApply = False
 # Check if user wants to upload preconfigs to Orchestrator
 upload_to_orch = input("Do you want to upload the generated Preconfigs to Orchestrator?(y/n, other to quit): ")
 if upload_to_orch == "y":
+    # Connect to Orchestrator
+    orch.login()
+
     # Check if user wants to auto-approve appliances matching uploaded preconfigs
     auto_approve_check = input("Do you want to auto-approve discovered appliances matching the preconfigs?(y/n, other to quit): ")
     if auto_approve_check == "y":
@@ -72,8 +85,7 @@ else:
     exit()
 
 
-# Connect to Orchestrator
-orch.login()
+
 
 with open(filename, encoding='utf-8-sig') as csvfile:
     csv_dict = csv.DictReader(csvfile)
@@ -93,136 +105,14 @@ with open(filename, encoding='utf-8-sig') as csvfile:
 
             silverpeak_hostname_list.append(row['hostname'])
 
-            preconfig = ec_template.render(
-            hostname=row['hostname'],
-            group=row['group'],
-            site=row['site'],
-            networkRole=row['networkRole'],
-            region=row['region'],
-            address=row['address'],
-            address2=row['address2'],
-            city=row['city'],
-            state=row['state'],
-            zipCode=row['zipCode'],
-            country=row['country'],
-            name=row['name'],
-            email=row['email'],
-            phoneNumber=row['phoneNumber'],
+            # Convert list strings to comma separated list, strips leading/trailing whitespace
+            row['templateGroups'] = comma_separate(row['templateGroups'])
+            row['businessIntentOverlays'] = comma_separate(row['businessIntentOverlays'])
 
-            template_group_1=row['template_group_1'],
-            template_group_2=row['template_group_2'],
-            template_group_3=row['template_group_3'],
-            template_group_4=row['template_group_4'],
+            # Render Jinja template
+            preconfig = ec_template.render(data=row)
 
-            overlay_1=row['overlay_1'],
-            overlay_2=row['overlay_2'],
-            overlay_3=row['overlay_3'],
-            overlay_4=row['overlay_4'],
-            overlay_5=row['overlay_5'],
-            overlay_6=row['overlay_6'],
-            overlay_7=row['overlay_7'],
-
-            totalOutboundBandwidth=row['totalOutboundBandwidth'],
-            totalInboundBandwidth=row['totalInboundBandwidth'],
-            outboundMaxBandwidth=row['outboundMaxBandwidth'],
-
-            LAN_INT1_NAME=row['lan_interface_1_name'],
-            LAN_INT1_DESC=row['lan_interface_1_desc'],
-            LAN_INT1_IPMASK=row['lan_interface_1_ipmask'],
-            LAN_INT1_NEXTHOP=row['lan_interface_1_nexthop'],
-            LAN_INT1_SEGMENT=row['lan_interface_1_segment'],
-            LAN_INT1_ZONE=row['lan_interface_1_zone'],
-
-            LAN_INT2_NAME=row['lan_interface_2_name'],
-            LAN_INT2_DESC=row['lan_interface_2_desc'],
-            LAN_INT2_IPMASK=row['lan_interface_2_ipmask'],
-            LAN_INT2_NEXTHOP=row['lan_interface_2_nexthop'],
-            LAN_INT2_SEGMENT=row['lan_interface_2_segment'],
-            LAN_INT2_ZONE=row['lan_interface_2_zone'],
-
-            LAN_INT3_NAME=row['lan_interface_3_name'],
-            LAN_INT3_DESC=row['lan_interface_3_desc'],
-            LAN_INT3_IPMASK=row['lan_interface_3_ipmask'],
-            LAN_INT3_NEXTHOP=row['lan_interface_3_nexthop'],
-            LAN_INT3_SEGMENT=row['lan_interface_3_segment'],
-            LAN_INT3_ZONE=row['lan_interface_3_zone'],
-
-            WAN_INT1_NAME=row['wan_interface_1_name'],
-            WAN_INT1_DESC=row['wan_interface_1_desc'],
-            WAN_INT1_LABEL=row['wan_interface_1_label'],
-            WAN_INT1_OUTBOUND_MAX=row['wan_interface_1_max_outbound_bw'],
-            WAN_INT1_INBOUND_MAX=row['wan_interface_1_max_inbound_bw'],
-            WAN_INT1_IPMASK=row['wan_interface_1_ipmask'],
-            WAN_INT1_NEXTHOP=row['wan_interface_1_nexthop'],
-            WAN_INT1_FIREWALL_MODE=row['wan_interface_1_firewall_mode'],
-            WAN_INT1_NAT=row['wan_interface_1_behind_nat'],
-            WAN_INT1_ZONE=row['wan_interface_1_zone'],
-            CONFIGURE_DHCP=row['configure_dhcp'],
-
-            DHCP_RELAY_SERVER_1=row['dhcp_relay_server_1'],
-            DHCP_RELAY_SERVER_2=row['dhcp_relay_server_2'],
-
-            DHCP_INT1_NAME=row['dhcp_interface_1'],
-            DHCP_INT1_TYPE=row['dhcp_interface_1_type'],
-            DHCP_INT1_NETWORK=row['dhcp_interface_1_network'],
-            DHCP_INT1_START_ADDRESS=row['dhcp_interface_1_srv_start_address'],
-            DHCP_INT1_END_ADDRESS=row['dhcp_interface_1_srv_end_address'],
-            DHCP_INT1_GATEWAY=row['dhcp_interface_1_srv_gateway'],
-            DHCP_INT1_DNS_SERVER_1=row['dhcp_interface_1_srv_dns1'],
-            DHCP_INT1_DNS_SERVER_2=row['dhcp_interface_1_srv_dns2'],
-            DHCP_INT1_NTP_SERVER_1=row['dhcp_interface_1_srv_ntp'],
-            DHCP_INT1_OPTION1=row['dhcp_interface_1_srv_opt1'],
-            DHCP_INT1_OPTION1_VALUE=row['dhcp_interface_1_srv_opt1value'],
-            DHCP_INT1_OPTION2=row['dhcp_interface_1_srv_opt2'],
-            DHCP_INT1_OPTION2_VALUE=row['dhcp_interface_1_srv_opt2value'],
-
-            DHCP_INT2_NAME=row['dhcp_interface_2'],
-            DHCP_INT2_TYPE=row['dhcp_interface_2_type'],
-            DHCP_INT2_NETWORK=row['dhcp_interface_2_network'],
-            DHCP_INT2_START_ADDRESS=row['dhcp_interface_2_srv_start_address'],
-            DHCP_INT2_END_ADDRESS=row['dhcp_interface_2_srv_end_address'],
-            DHCP_INT2_GATEWAY=row['dhcp_interface_2_srv_gateway'],
-            DHCP_INT2_DNS_SERVER_1=row['dhcp_interface_2_srv_dns1'],
-            DHCP_INT2_DNS_SERVER_2=row['dhcp_interface_2_srv_dns2'],
-            DHCP_INT2_NTP_SERVER_1=row['dhcp_interface_2_srv_ntp'],
-            DHCP_INT2_OPTION1=row['dhcp_interface_2_srv_opt1'],
-            DHCP_INT2_OPTION1_VALUE=row['dhcp_interface_2_srv_opt1value'],
-            DHCP_INT2_OPTION2=row['dhcp_interface_2_srv_opt2'],
-            DHCP_INT2_OPTION2_VALUE=row['dhcp_interface_2_srv_opt2value'],
-
-            DHCP_INT3_NAME=row['dhcp_interface_3'],
-            DHCP_INT3_TYPE=row['dhcp_interface_3_type'],
-            DHCP_INT3_NETWORK=row['dhcp_interface_3_network'],
-            DHCP_INT3_START_ADDRESS=row['dhcp_interface_3_srv_start_address'],
-            DHCP_INT3_END_ADDRESS=row['dhcp_interface_3_srv_end_address'],
-            DHCP_INT3_GATEWAY=row['dhcp_interface_3_srv_gateway'],
-            DHCP_INT3_DNS_SERVER_1=row['dhcp_interface_3_srv_dns1'],
-            DHCP_INT3_DNS_SERVER_2=row['dhcp_interface_3_srv_dns2'],
-            DHCP_INT3_NTP_SERVER_1=row['dhcp_interface_3_srv_ntp'],
-            DHCP_INT3_OPTION1=row['dhcp_interface_3_srv_opt1'],
-            DHCP_INT3_OPTION1_VALUE=row['dhcp_interface_3_srv_opt1value'],
-            DHCP_INT3_OPTION2=row['dhcp_interface_3_srv_opt2'],
-            DHCP_INT3_OPTION2_VALUE=row['dhcp_interface_3_srv_opt2value'],
-
-            DHCP_MAX_LEASE=row['dhcp_max_lease'],
-            DHCP_DEFAULT_LEASE=row['dhcp_default_lease'],
-
-            LICENSE_BANDWIDTH=row['license_bandwidth'],
-            LICENSE_BOOST=row['license_boost'],
-
-            static_route_1_subnet=row['static_route_1_subnet'],
-            static_route_1_nexthop=row['static_route_1_nexthop'],
-            static_route_1_interface=row['static_route_1_interface'],
-            static_route_1_metric=row['static_route_1_metric'],
-            static_route_1_advertise=row['static_route_1_advertise'],
-            static_route_1_comment=row['static_route_1_comment'],
-
-            silverpeak_bgp_asn=row['silverpeak_bgp_asn'],
-            silverpeak_bgp_id=row['silverpeak_bgp_id'],
-            switch_bgp_ip=row['switch_bgp_ip'],
-            switch_bgp_asn=row['switch_bgp_asn'],
-            )
-
+            # Write local YAML file
             output_filename = row['hostname'] + "_preconfig.yml"
 
             with open(local_config_directory + output_filename, 'w') as preconfig_file:
@@ -274,5 +164,8 @@ if autoApply == True:
 else:
     pass
 
-# Logout from Orchestrator
-orch.logout()
+# Logout from Orchestrator if logged in
+if upload_to_orch == "y":
+    orch.logout()
+else:
+    pass
