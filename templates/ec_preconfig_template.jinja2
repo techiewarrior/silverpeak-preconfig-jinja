@@ -1,262 +1,230 @@
 applianceInfo:
-  hostname: {{ hostname }}
-  group: {{ group }}
-  site: {{ site }}
-  networkRole: {{ networkRole }}
-  region: {{ region }}
+  hostname: {{ data['hostname'] }}
+  group: {{ data['group'] | default("",false)}}
+  site: {{ data['site'] }}
+  networkRole: {{ data['networkRole'] | default("non-hub",true)}}
+  region: {{ data['region'] | default("",false) }}
   location:
-    address: {{ address }}
-    address2: {{ address2 }}
-    city: {{ city }}
-    state: {{ state }}
-    zipCode: {{ zipCode }}
-    country: {{ country }}
+    address: {{ data['address'] | default("",false) }}
+    address2: {{ data['address2'] | default("",false) }}
+    city: {{ data['city'] }}
+    state: {{ data['state'] }}
+    zipCode: {{ data['zipCode'] }}
+    country: {{ data['country'] }}
   contact:
-    name: {{ name }}
-    email: {{ email }}
-    phoneNumber: "{{ phoneNumber }}"
+    name: {{ data['name'] | default("",false) }}
+    email: {{ data['email'] | default("",false) }}
+    phoneNumber: "{{ data['phoneNumber'] | default("",false) }}"
 
+{% if data['templateGroups'] is defined %}
 templateGroups:
   groups:
-    {%+ if template_group_1 != "" -%}
-        - {{ template_group_1 }}
-    {%+ endif -%}
-    {%+ if template_group_2 != "" -%}
-        - {{ template_group_2 }}
-    {%+ endif -%}
-    {%+ if template_group_3 != "" -%}
-        - {{ template_group_3 }}
-    {%+ endif -%}
-    {%+ if template_group_4 != "" -%}
-        - {{ template_group_4 }}
-    {%+ endif %}
+    {%+ for group in data['templateGroups'] -%}
+        - {{ group }}
+    {%+ endfor -%}
+{% endif %}
 
+
+{% if data['businessIntentOverlays'] is defined %}
 businessIntentOverlays:
     overlays:
-    {%+ if overlay_1 != "" -%}
-        - {{ overlay_1 }}
-    {%+ endif -%}
-    {%+ if overlay_2 != "" -%}
-        - {{ overlay_2 }}
-    {%+ endif -%}
-    {%+ if overlay_3 != "" -%}
-        - {{ overlay_3 }}
-    {%+ endif -%}
-    {%+ if overlay_4 != "" -%}
-        - {{ overlay_4 }}
-    {%+ endif -%}
-    {%+ if overlay_5 != "" -%}
-        - {{ overlay_5 }}
-    {%+ endif -%}
-    {%+ if overlay_6 != "" -%}
-        - {{ overlay_6 }}
-    {%+ endif -%}
-    {%+ if overlay_7 != "" -%}
-        - {{ overlay_7 }}
-    {%+ endif %}
+    {%+ for bio in data['businessIntentOverlays'] -%}
+        - {{ bio }}
+    {%+ endfor -%}
+{% endif %}
 
 deploymentInfo:
   deploymentMode: inline-router
-  totalOutboundBandwidth: {{ totalOutboundBandwidth }}
-  totalInboundBandwidth: {{ totalInboundBandwidth }}
+  totalOutboundBandwidth: {{ data['totalOutboundBandwidth'] | default("10000",true) }}
+  totalInboundBandwidth: {{ data['totalInboundBandwidth'] | default("10000",true) }}
   shapeInboundTraffic: true
   passThroughShapedTraffic:
-    outboundMaxBandwidth: {{ outboundMaxBandwidth }}
+    outboundMaxBandwidth: {{ data['outboundMaxBandwidth'] | default("10000",true) }}
 
   deploymentInterfaces:
-{%+ if LAN_INT1_NAME != "" %}
-    - interfaceName: {{ LAN_INT1_NAME }}
+{%+ if data['lan_interface_1_name'] != "" %}
+    - interfaceName: {{ data['lan_interface_1_name'] }}
       interfaceType: lan
-      interfaceComment: {{ LAN_INT1_DESC }}
-      ipAddressMask: {{ LAN_INT1_IPMASK }}
-    {%- if LAN_INT1_SEGMENT != "" %}
-      segment: {{ LAN_INT1_SEGMENT }}
-    {%- endif -%}
-    {%+ if LAN_INT1_ZONE != "" %}
-      zone: {{ LAN_INT1_ZONE }}
-    {%+ endif -%}
+      interfaceComment: {{ data['lan_interface_1_desc'] | default("",false) }}
+      ipAddressMask: {{ data['lan_interface_1_ipmask'] }}
+      nextHop: {{ data['lan_interface_1_nexthop'] | default("",false) }}
+      segment: {{ data['lan_interface_1_segment'] | default("",false) }}
+      zone: {{ data['lan_interface_1_zone'] | default("",false) }}
 {%+ endif %}
 
-{%+ if LAN_INT2_NAME != "" %}
-    - interfaceName: {{ LAN_INT2_NAME }}
+{%+ if data['lan_interface_2_name'] != "" %}
+    - interfaceName: {{ data['lan_interface_2_name'] }}
       interfaceType: lan
-      interfaceComment: {{ LAN_INT2_DESC }}
-      ipAddressMask: {{ LAN_INT2_IPMASK }}
-    {%- if LAN_INT2_SEGMENT != "" %}
-      segment: {{ LAN_INT2_SEGMENT }}
-    {%- endif -%}
-    {%+ if LAN_INT2_ZONE != "" %}
-      zone: {{ LAN_INT2_ZONE }}
-    {%+ endif -%}
+      interfaceComment: {{ data['lan_interface_2_desc'] | default("",false) }}
+      ipAddressMask: {{ data['lan_interface_2_ipmask'] }}
+      nextHop: {{ data['lan_interface_2_nexthop'] | default("",false) }}
+      segment: {{ data['lan_interface_2_segment'] | default("",false) }}
+      zone: {{ data['lan_interface_2_zone'] | default("",false) }}
 {%+ endif %}
 
-{%+ if LAN_INT3_NAME != "" %}
-    - interfaceName: {{ LAN_INT3_NAME }}
+{%+ if data['lan_interface_3_name'] != "" %}
+    - interfaceName: {{ data['lan_interface_3_name'] }}
       interfaceType: lan
-      interfaceComment: {{ LAN_INT3_DESC }}
-      ipAddressMask: {{ LAN_INT3_IPMASK }}
-    {%- if LAN_INT3_SEGMENT != "" %}
-      segment: {{ LAN_INT3_SEGMENT }}
-    {%- endif -%}
-    {%+ if LAN_INT3_ZONE != "" %}
-      zone: {{ LAN_INT3_ZONE }}
-    {%+ endif -%}
+      interfaceComment: {{ data['lan_interface_3_desc'] | default("",false) }}
+      ipAddressMask: {{ data['lan_interface_3_ipmask'] }}
+      nextHop: {{ data['lan_interface_3_nexthop'] | default("",false) }}
+      segment: {{ data['lan_interface_3_segment'] | default("",false) }}
+      zone: {{ data['lan_interface_3_zone'] | default("",false) }}
 {%+ endif %}
 
 
-{%+ if WAN_INT1_NAME != "" %}
-    - interfaceName: {{ WAN_INT1_NAME }}
+{%+ if data['wan_interface_1_name'] != "" %}
+    - interfaceName: {{ data['wan_interface_1_name'] }}
       interfaceType: wan
-      interfaceComment: {{ WAN_INT1_DESC }}
-      interfaceLabel: {{ WAN_INT1_LABEL }}
-      outboundMaxBandwidth: {{ WAN_INT1_OUTBOUND_MAX }}
-      inboundMaxBandwidth: {{ WAN_INT1_INBOUND_MAX }}
-      {%+ if WAN_INT1_IPMASK != "" -%}
-      ipAddressMask: {{ WAN_INT1_IPMASK }}
-      nextHop: {{ WAN_INT1_NEXTHOP }}
+      interfaceComment: {{ data['wan_interface_1_desc'] | default("",false) }}
+      interfaceLabel: {{ data['wan_interface_1_label'] | default("",false) }}
+      outboundMaxBandwidth: {{ data['wan_interface_1_max_outbound_bw'] | default("10000",false) }}
+      inboundMaxBandwidth: {{ data['wan_interface_1_max_inbound_bw'] | default("10000",false) }}
+      ipAddressMask: {{ data['wan_interface_1_ipmask'] | default("",false) }}
+      {%+ if data['wan_interface_1_ipmask'] != "" -%}
+      nextHop: {{ data['wan_interface_1_nexthop'] }}
+      {%+ else -%}
+      nextHop:
       {%+ endif -%}
-      firewallMode: {{ WAN_INT1_FIREWALL_MODE }}
-      behindNat: {{ WAN_INT1_NAT }}
-      zone: {{ WAN_INT1_ZONE }}
+      firewallMode: {{ data['wan_interface_1_firewall_mode'] | default("all",true) }}
+      behindNat: {{ data['wan_interface_1_behind_nat'] | default("none",true) }}
+      zone: {{ data['wan_interface_1_zone'] | default("",false) }}
 {%+ endif -%}
 
 
-{%+ if CONFIGURE_DHCP == 'TRUE' %}
+{%+ if data['configure_dhcp'] == 'TRUE' %}
 
   dhcpInfo:
 
-  {%+ if DHCP_INT1_NAME != "" %}
+  {%+ if data['dhcp_interface_1'] != "" %}
 
-    - dhcpInterfaceName: {{ DHCP_INT1_NAME }}
-      dhcpType: {{ DHCP_INT1_TYPE }}
-      {%- if DHCP_INT1_TYPE == "relay" %}
+    - dhcpInterfaceName: {{ data['dhcp_interface_1'] }}
+      dhcpType: {{ data['dhcp_interface_1_type'] }}
+      {%- if data['dhcp_interface_1_type'] == "relay" %}
       dhcpProxyServers:
-        - {{ DHCP_RELAY_SERVER_1 }}
-        - {{ DHCP_RELAY_SERVER_2 }}
+        - {{ data['dhcp_relay_server_1'] }}
+        - {{ data['dhcp_relay_server_2'] }}
       enableOptions82: true
       options82Policy: forward
-      {%- elif DHCP_INT1_TYPE == "server" %}
-      dhcpAddressMask: {{  DHCP_INT1_NETWORK }}
-      startIpAddress: {{  DHCP_INT1_START_ADDRESS }}
-      endIpAddress: {{  DHCP_INT1_END_ADDRESS }}
-      gatewayIpAddress: {{  DHCP_INT1_GATEWAY }}
+      {%- elif data['dhcp_interface_1_type'] == "server" %}
+      dhcpAddressMask: {{  data['dhcp_interface_1_network'] }}
+      startIpAddress: {{  data['dhcp_interface_1_srv_start_address'] }}
+      endIpAddress: {{  data['dhcp_interface_1_srv_end_address'] }}
+      gatewayIpAddress: {{  data['dhcp_interface_1_srv_gateway'] }}
       dnsServers:
-        - {{ DHCP_INT1_DNS_SERVER_1 }}
-        - {{ DHCP_INT1_DNS_SERVER_2 }}
+        - {{ data['dhcp_interface_1_srv_dns1'] }}
+        - {{ data['dhcp_interface_1_srv_dns2'] }}
       ntpServers:
-        - {{ DHCP_INT1_NTP_SERVER_1 }}
-      maximumLease: {{  DHCP_MAX_LEASE  }}
-      defaultLease: {{  DHCP_DEFAULT_LEASE  }}
+        - {{ data['dhcp_interface_1_srv_ntp'] }}
+      maximumLease: {{  data['dhcp_max_lease']  }}
+      defaultLease: {{  data['dhcp_default_lease']  }}
       options:
-      {%- if DHCP_INT1_OPTION1 != "" %}
-        - option: {{  DHCP_INT1_OPTION1 }}
-          value:  {{  DHCP_INT1_OPTION1_VALUE  }}
+      {%- if data['dhcp_interface_1_srv_opt1'] != "" %}
+        - option: {{  data['dhcp_interface_1_srv_opt1'] }}
+          value:  {{  data['dhcp_interface_1_srv_opt1value']  }}
       {%+ endif -%}
-      {%- if DHCP_INT1_OPTION2 != "" %}
-        - option: {{  DHCP_INT1_OPTION2 }}
-          value:  {{  DHCP_INT1_OPTION2_VALUE  }}
+      {%- if data['dhcp_interface_1_srv_opt2'] != "" %}
+        - option: {{  data['dhcp_interface_1_srv_opt2'] }}
+          value:  {{  data['dhcp_interface_1_srv_opt2value']  }}
       {%+ endif -%}
       {%+ endif -%}
-      {% endif %}
 
+  {% endif %}
 
-    {%+ if DHCP_INT2_NAME != "" -%}
+  {%+ if data['dhcp_interface_2'] != "" %}
 
-    - dhcpInterfaceName: {{ DHCP_INT2_NAME }}
-      dhcpType: {{ DHCP_INT2_TYPE }}
-      {%- if DHCP_INT2_TYPE == "relay" %}
+    - dhcpInterfaceName: {{ data['dhcp_interface_2'] }}
+      dhcpType: {{ data['dhcp_interface_2_type'] }}
+      {%- if data['dhcp_interface_2_type'] == "relay" %}
       dhcpProxyServers:
-        - {{ DHCP_RELAY_SERVER_1 }}
-        - {{ DHCP_RELAY_SERVER_2 }}
+        - {{ data['dhcp_relay_server_1'] }}
+        - {{ data['dhcp_relay_server_2'] }}
       enableOptions82: true
       options82Policy: forward
-      {%- elif DHCP_INT2_TYPE == "server" %}
-      dhcpAddressMask: {{  DHCP_INT2_NETWORK }}
-      startIpAddress: {{  DHCP_INT2_START_ADDRESS }}
-      endIpAddress: {{  DHCP_INT2_END_ADDRESS }}
-      gatewayIpAddress: {{  DHCP_INT2_GATEWAY }}
+      {%- elif data['dhcp_interface_2_type'] == "server" %}
+      dhcpAddressMask: {{  data['dhcp_interface_2_network'] }}
+      startIpAddress: {{  data['dhcp_interface_2_srv_start_address'] }}
+      endIpAddress: {{  data['dhcp_interface_2_srv_end_address'] }}
+      gatewayIpAddress: {{  data['dhcp_interface_2_srv_gateway'] }}
       dnsServers:
-        - {{ DHCP_INT2_DNS_SERVER_1 }}
-        - {{ DHCP_INT2_DNS_SERVER_2 }}
+        - {{ data['dhcp_interface_2_srv_dns1'] }}
+        - {{ data['dhcp_interface_2_srv_dns2'] }}
       ntpServers:
-        - {{ DHCP_INT2_NTP_SERVER_1 }}
-      maximumLease: {{  DHCP_MAX_LEASE  }}
-      defaultLease: {{  DHCP_DEFAULT_LEASE  }}
+        - {{ data['dhcp_interface_2_srv_ntp'] }}
+      maximumLease: {{  data['dhcp_max_lease']  }}
+      defaultLease: {{  data['dhcp_default_lease']  }}
       options:
-      {%- if DHCP_INT2_OPTION1 != "" %}
-        - option: {{  DHCP_INT2_OPTION1 }}
-          value:  {{  DHCP_INT2_OPTION1_VALUE  }}
+      {%- if data['dhcp_interface_2_srv_opt1'] != "" %}
+        - option: {{  data['dhcp_interface_2_srv_opt1'] }}
+          value:  {{  data['dhcp_interface_2_srv_opt1value']  }}
       {%+ endif -%}
-      {%- if DHCP_INT2_OPTION2 != "" %}
-        - option: {{  DHCP_INT2_OPTION2 }}
-          value:  {{  DHCP_INT2_OPTION2_VALUE  }}
+      {%- if data['dhcp_interface_2_srv_opt2'] != "" %}
+        - option: {{  data['dhcp_interface_2_srv_opt2'] }}
+          value:  {{  data['dhcp_interface_2_srv_opt2value']  }}
       {%+ endif -%}
       {%+ endif -%}
-      {% endif %}
+      
+  {% endif %}
 
-    {%+ if DHCP_INT3_NAME != "" -%}
+  {%+ if data['dhcp_interface_3'] != "" %}
 
-    - dhcpInterfaceName: {{ DHCP_INT3_NAME }}
-      dhcpType: {{ DHCP_INT3_TYPE }}
-      {%- if DHCP_INT3_TYPE == "relay" %}
+    - dhcpInterfaceName: {{ data['dhcp_interface_3'] }}
+      dhcpType: {{ data['dhcp_interface_3_type'] }}
+      {%- if data['dhcp_interface_3_type'] == "relay" %}
       dhcpProxyServers:
-        - {{ DHCP_RELAY_SERVER_1 }}
-        - {{ DHCP_RELAY_SERVER_2 }}
+        - {{ data['dhcp_relay_server_1'] }}
+        - {{ data['dhcp_relay_server_2'] }}
       enableOptions82: true
       options82Policy: forward
-      {%- elif DHCP_INT3_TYPE == "server" %}
-      dhcpAddressMask: {{  DHCP_INT3_NETWORK }}
-      startIpAddress: {{  DHCP_INT3_START_ADDRESS }}
-      endIpAddress: {{  DHCP_INT3_END_ADDRESS }}
-      gatewayIpAddress: {{  DHCP_INT3_GATEWAY }}
+      {%- elif data['dhcp_interface_3_type'] == "server" %}
+      dhcpAddressMask: {{  data['dhcp_interface_3_network'] }}
+      startIpAddress: {{  data['dhcp_interface_3_srv_start_address'] }}
+      endIpAddress: {{  data['dhcp_interface_3_srv_end_address'] }}
+      gatewayIpAddress: {{  data['dhcp_interface_3_srv_gateway'] }}
       dnsServers:
-        - {{ DHCP_INT3_DNS_SERVER_1 }}
-        - {{ DHCP_INT3_DNS_SERVER_2 }}
+        - {{ data['dhcp_interface_3_srv_dns1'] }}
+        - {{ data['dhcp_interface_3_srv_dns2'] }}
       ntpServers:
-        - {{ DHCP_INT3_NTP_SERVER_1 }}
-      maximumLease: {{  DHCP_MAX_LEASE  }}
-      defaultLease: {{  DHCP_DEFAULT_LEASE  }}
+        - {{ data['dhcp_interface_3_srv_ntp'] }}
+      maximumLease: {{  data['dhcp_max_lease']  }}
+      defaultLease: {{  data['dhcp_default_lease']  }}
       options:
-      {%- if DHCP_INT3_OPTION1 != "" %}
-        - option: {{  DHCP_INT3_OPTION1 }}
-          value:  {{  DHCP_INT3_OPTION1_VALUE  }}
+      {%- if data['dhcp_interface_3_srv_opt1'] != "" %}
+        - option: {{  data['dhcp_interface_3_srv_opt1'] }}
+          value:  {{  data['dhcp_interface_3_srv_opt1value']  }}
       {%+ endif -%}
-      {%- if DHCP_INT3_OPTION2 != "" %}
-        - option: {{  DHCP_INT3_OPTION2 }}
-          value:  {{  DHCP_INT3_OPTION2_VALUE  }}
+      {%- if data['dhcp_interface_3_srv_opt2'] != "" %}
+        - option: {{  data['dhcp_interface_3_srv_opt2'] }}
+          value:  {{  data['dhcp_interface_3_srv_opt2value']  }}
       {%+ endif -%}
       {%+ endif -%}
-      {%+ endif -%}
-
+        
+    {% endif %}
 {%+ endif %}
 
 localRoutes:
-  useSharedSubnetInfo: true
-  advertiseLocalLanSubnets: true
-  advertiseLocalWanSubnets: false
-  localMetric: 50
-  localCommunities:
-  redistOspfToSubnetShare: false
-  ospfRedistMetric: 0
-  ospfRedistTag: 0
-  filterRoutesWithLocalASN: true
-  {%- if silverpeak_bgp_asn != "" %}
-  redistToSDwanFabricRouteMap: "allow_bgp_rtmap_to_subsh"
-  {% else %}
-  redistToSDwanFabricRouteMap: "default_rtmap_to_subsh"
-  {% endif %}
+  useSharedSubnetInfo: {{ data['useSharedSubnetInfo'] | default ("true",true) }}
+  advertiseLocalLanSubnets: {{ data['advertiseLocalLanSubnets'] | default ("true",true) }}
+  advertiseLocalWanSubnets: {{ data['advertiseLocalWanSubnets'] | default ("false",true) }}
+  localMetric: {{ data['localMetric'] | default ("50",true) }}
+  localCommunities: {{ data['localCommunities'] | default ("",false) }}
+  redistOspfToSubnetShare: {{ data['redistOspfToSubnetShare'] | default ("false",true) }}
+  ospfRedistMetric: {{ data['ospfRedistMetric'] | default ("0",true) }}
+  ospfRedistTag: {{ data['ospfRedistTag'] | default ("0",true) }}
+  filterRoutesWithLocalASN: {{ data['filterRoutesWithLocalASN'] | default ("true",true) }}
+  redistToSDwanFabricRouteMap: {{ data['redistToSDwanFabricRouteMap'] | default ("default_rtmap_to_subsh",true) }}
 
 ecLicensing:
 
   useDefaultAccount: true
-  bandwidthLevel: {{ LICENSE_BANDWIDTH }}
-  boost: {{ LICENSE_BOOST }}
+  bandwidthLevel: {{ data['license_bandwidth'] | default ("10000", false) }}
+  boost: {{ data['license_boost'] | default ("", false) }}
 
-{% if silverpeak_bgp_asn != "" %}
+{% if data['silverpeak_bgp_asn'] != "" %}
 bgpSystemConfig:
   enable: true
-  asn: {{ silverpeak_bgp_asn }}
-  routerId: {{ silverpeak_bgp_id }}
+  asn: {{ data['silverpeak_bgp_asn'] }}
+  routerId: {{ data['silverpeak_bgp_id'] }}
   enableGracefulRestart: false
   maxRestartTime: 120
   maxStalePathTime: 150
@@ -266,14 +234,14 @@ bgpSystemConfig:
   filterTag: 0
 
   neighbors:
-    - peerIpAddress: {{ switch_bgp_ip }}
+    - peerIpAddress: {{ data['peer_bgp_ip'] }}
       enableImports: true
-      peerAsn: {{ switch_bgp_asn }}
+      peerAsn: {{ data['peer_bgp_asn'] }}
       peerType: Branch
       enableNeighbor: true
       nextHopSelf: false
-      inboundRouteMap : default_rtmap_bgp_inbound_br
-      outboundRouteMap : default_rtmap_bgp_outbound_br
+      inboundRouteMap : {{ data['bgp_inboundRouteMap'] | default ("default_rtmap_bgp_inbound_br",true) }}
+      outboundRouteMap : {{ data['bgp_outboundRouteMap'] | default ("default_rtmap_bgp_outbound_br",true) }}
       keepAlive: 30
       holdTime: 90
       password:
