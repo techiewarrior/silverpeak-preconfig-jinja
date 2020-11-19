@@ -6,17 +6,16 @@ applianceInfo:
   region: {{ data['region'] | default("",false) }}
   location:
     address: {{ data['address'] | default("",false) }}
-    address2: {{ data['address2'] | default("",false) }}
-    city: {{ data['city'] }}
-    state: {{ data['state'] }}
-    zipCode: {{ data['zipCode'] }}
-    country: {{ data['country'] }}
+    address2: {{ data['address2'] | default("",false) }}    city: {{ data['city'] | default("",false)  }}
+    state: {{ data['state'] | default("",false)  }}
+    zipCode: {{ data['zipCode'] | default("",false)  }}
+    country: {{ data['country'] | default("",false)  }}
   contact:
     name: {{ data['name'] | default("",false) }}
     email: {{ data['email'] | default("",false) }}
     phoneNumber: "{{ data['phoneNumber'] | default("",false) }}"
 
-{% if data['templateGroups'] is defined %}
+{% if data['templateGroups'] is defined and data['templateGroups'] != "" %}
 templateGroups:
   groups:
     {%+ for group in data['templateGroups'] -%}
@@ -25,7 +24,7 @@ templateGroups:
 {% endif %}
 
 
-{% if data['businessIntentOverlays'] is defined %}
+{% if data['businessIntentOverlays'] is defined and data['businessIntentOverlays'] != "" %}
 businessIntentOverlays:
     overlays:
     {%+ for bio in data['businessIntentOverlays'] -%}
@@ -34,15 +33,15 @@ businessIntentOverlays:
 {% endif %}
 
 deploymentInfo:
-  deploymentMode: inline-router
+  deploymentMode: {{ data['deploymentMode'] | default("inline-router",true) }}
   totalOutboundBandwidth: {{ data['totalOutboundBandwidth'] | default("10000",true) }}
   totalInboundBandwidth: {{ data['totalInboundBandwidth'] | default("10000",true) }}
-  shapeInboundTraffic: true
+  shapeInboundTraffic: {{ data['shapeInboundTraffic'] | default("true",true) }}
   passThroughShapedTraffic:
     outboundMaxBandwidth: {{ data['outboundMaxBandwidth'] | default("10000",true) }}
 
   deploymentInterfaces:
-{%+ if data['lan_interface_1_name'] != "" %}
+{%+ if data['lan_interface_1_name'] is defined and data['lan_interface_1_name'] != "" %}
     - interfaceName: {{ data['lan_interface_1_name'] }}
       interfaceType: lan
       interfaceComment: {{ data['lan_interface_1_desc'] | default("",false) }}
@@ -52,7 +51,7 @@ deploymentInfo:
       zone: {{ data['lan_interface_1_zone'] | default("",false) }}
 {%+ endif %}
 
-{%+ if data['lan_interface_2_name'] != "" %}
+{%+ if data['lan_interface_2_name'] is defined and data['lan_interface_2_name'] != "" %}
     - interfaceName: {{ data['lan_interface_2_name'] }}
       interfaceType: lan
       interfaceComment: {{ data['lan_interface_2_desc'] | default("",false) }}
@@ -62,7 +61,7 @@ deploymentInfo:
       zone: {{ data['lan_interface_2_zone'] | default("",false) }}
 {%+ endif %}
 
-{%+ if data['lan_interface_3_name'] != "" %}
+{%+ if data['lan_interface_3_name'] is defined and data['lan_interface_3_name'] != "" %}
     - interfaceName: {{ data['lan_interface_3_name'] }}
       interfaceType: lan
       interfaceComment: {{ data['lan_interface_3_desc'] | default("",false) }}
@@ -73,7 +72,7 @@ deploymentInfo:
 {%+ endif %}
 
 
-{%+ if data['wan_interface_1_name'] != "" %}
+{%+ if data['wan_interface_1_name'] is defined and data['wan_interface_1_name'] != "" %}
     - interfaceName: {{ data['wan_interface_1_name'] }}
       interfaceType: wan
       interfaceComment: {{ data['wan_interface_1_desc'] | default("",false) }}
@@ -96,7 +95,7 @@ deploymentInfo:
 
   dhcpInfo:
 
-  {%+ if data['dhcp_interface_1'] != "" %}
+  {%+ if data['dhcp_interface_1'] is defined and data['dhcp_interface_1'] != "" %}
 
     - dhcpInterfaceName: {{ data['dhcp_interface_1'] }}
       dhcpType: {{ data['dhcp_interface_1_type'] }}
@@ -119,11 +118,11 @@ deploymentInfo:
       maximumLease: {{  data['dhcp_max_lease']  }}
       defaultLease: {{  data['dhcp_default_lease']  }}
       options:
-      {%- if data['dhcp_interface_1_srv_opt1'] != "" %}
+      {%- if data['dhcp_interface_1_srv_opt1'] is defined and data['dhcp_interface_1_srv_opt1'] != "" %}
         - option: {{  data['dhcp_interface_1_srv_opt1'] }}
           value:  {{  data['dhcp_interface_1_srv_opt1value']  }}
       {%+ endif -%}
-      {%- if data['dhcp_interface_1_srv_opt2'] != "" %}
+      {%- if data['dhcp_interface_1_srv_opt2'] is defined and data['dhcp_interface_1_srv_opt2'] != "" %}
         - option: {{  data['dhcp_interface_1_srv_opt2'] }}
           value:  {{  data['dhcp_interface_1_srv_opt2value']  }}
       {%+ endif -%}
@@ -131,7 +130,7 @@ deploymentInfo:
 
   {% endif %}
 
-  {%+ if data['dhcp_interface_2'] != "" %}
+  {%+ if data['dhcp_interface_2'] is defined and data['dhcp_interface_2'] != "" %}
 
     - dhcpInterfaceName: {{ data['dhcp_interface_2'] }}
       dhcpType: {{ data['dhcp_interface_2_type'] }}
@@ -154,11 +153,11 @@ deploymentInfo:
       maximumLease: {{  data['dhcp_max_lease']  }}
       defaultLease: {{  data['dhcp_default_lease']  }}
       options:
-      {%- if data['dhcp_interface_2_srv_opt1'] != "" %}
+      {%- if data['dhcp_interface_2_srv_opt1'] is defined and data['dhcp_interface_2_srv_opt1'] != "" %}
         - option: {{  data['dhcp_interface_2_srv_opt1'] }}
           value:  {{  data['dhcp_interface_2_srv_opt1value']  }}
       {%+ endif -%}
-      {%- if data['dhcp_interface_2_srv_opt2'] != "" %}
+      {%- if data['dhcp_interface_2_srv_opt2'] is defined and data['dhcp_interface_2_srv_opt2'] != "" %}
         - option: {{  data['dhcp_interface_2_srv_opt2'] }}
           value:  {{  data['dhcp_interface_2_srv_opt2value']  }}
       {%+ endif -%}
@@ -166,7 +165,7 @@ deploymentInfo:
       
   {% endif %}
 
-  {%+ if data['dhcp_interface_3'] != "" %}
+  {%+ if data['dhcp_interface_3'] is defined and data['dhcp_interface_3'] != "" %}
 
     - dhcpInterfaceName: {{ data['dhcp_interface_3'] }}
       dhcpType: {{ data['dhcp_interface_3_type'] }}
@@ -189,11 +188,11 @@ deploymentInfo:
       maximumLease: {{  data['dhcp_max_lease']  }}
       defaultLease: {{  data['dhcp_default_lease']  }}
       options:
-      {%- if data['dhcp_interface_3_srv_opt1'] != "" %}
+      {%- if data['dhcp_interface_3_srv_opt1'] is defined and data['dhcp_interface_3_srv_opt1'] != "" %}
         - option: {{  data['dhcp_interface_3_srv_opt1'] }}
           value:  {{  data['dhcp_interface_3_srv_opt1value']  }}
       {%+ endif -%}
-      {%- if data['dhcp_interface_3_srv_opt2'] != "" %}
+      {%- if data['dhcp_interface_3_srv_opt2'] is defined and data['dhcp_interface_3_srv_opt2'] != "" %}
         - option: {{  data['dhcp_interface_3_srv_opt2'] }}
           value:  {{  data['dhcp_interface_3_srv_opt2value']  }}
       {%+ endif -%}
@@ -241,9 +240,9 @@ localRoutes:
 
 ecLicensing:
 
-  useDefaultAccount: true
-  bandwidthLevel: {{ data['license_bandwidth'] | default ("10000", false) }}
-  boost: {{ data['license_boost'] | default ("", false) }}
+  useDefaultAccount: {{ data['useDefaultAccount'] | default ("true", true) }}
+  bandwidthLevel: {{ data['license_bandwidth'] | default ("10000", true) }}
+  boost: {{ data['license_boost'] | default ("0", true) }}
 
 {% if data['silverpeak_bgp_asn'] is defined and data['silverpeak_bgp_asn'] != "" %}
 bgpSystemConfig:
@@ -259,17 +258,33 @@ bgpSystemConfig:
   filterTag: 0
 
   neighbors:
-    - peerIpAddress: {{ data['peer_bgp_ip'] }}
+    {%- if data['bgp_peer1_ip'] is defined and data['bgp_peer1_ip'] != "" %}
+    - peerIpAddress: {{ data['bgp_peer1_ip'] }}
       enableImports: true
-      peerAsn: {{ data['peer_bgp_asn'] }}
+      peerAsn: {{ data['bgp_peer1_asn'] }}
       peerType: Branch
       enableNeighbor: true
       nextHopSelf: false
-      inboundRouteMap : {{ data['bgp_inboundRouteMap'] | default ("default_rtmap_bgp_inbound_br",true) }}
-      outboundRouteMap : {{ data['bgp_outboundRouteMap'] | default ("default_rtmap_bgp_outbound_br",true) }}
+      inboundRouteMap : {{ data['bgp_peer1_inboundRouteMap'] | default ("default_rtmap_bgp_inbound_br",true) }}
+      outboundRouteMap : {{ data['bgp_peer1_outboundRouteMap'] | default ("default_rtmap_bgp_outbound_br",true) }}
       keepAlive: 30
       holdTime: 90
       password:
+    {%+ endif -%}
+    {%- if data['bgp_peer2_ip'] is defined and data['bgp_peer2_ip'] != "" %}
+    - peerIpAddress: {{ data['bgp_peer2_ip'] }}
+      enableImports: true
+      peerAsn: {{ data['bgp_peer2_asn'] }}
+      peerType: Branch
+      enableNeighbor: true
+      nextHopSelf: false
+      inboundRouteMap : {{ data['bgp_peer2_inboundRouteMap'] | default ("default_rtmap_bgp_inbound_br",true) }}
+      outboundRouteMap : {{ data['bgp_peer2_outboundRouteMap'] | default ("default_rtmap_bgp_outbound_br",true) }}
+      keepAlive: 30
+      holdTime: 90
+      password:
+    {%+ endif -%}
+
 {% endif %}
 
 
