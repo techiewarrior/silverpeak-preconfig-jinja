@@ -9,5 +9,10 @@ __pycache__/
 # dotenv
 *.env
 
+# Virtual Environment
+.venv/
+
 # Config Outputs
 preconfig_outputs/
+
+
