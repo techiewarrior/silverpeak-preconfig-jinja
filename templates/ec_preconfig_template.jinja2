@@ -214,17 +214,42 @@ localRoutes:
   filterRoutesWithLocalASN: {{ data['filterRoutesWithLocalASN'] | default ("true",true) }}
   redistToSDwanFabricRouteMap: {{ data['redistToSDwanFabricRouteMap'] | default ("default_rtmap_to_subsh",true) }}
 
+  routes:
+    {% if data['static_route_1_subnet'] is defined and data['static_route_1_subnet'] != "" %}
+    - routeIpSubnet: {{ data['static_route_1_subnet'] }}
+      nextHop: {{ data['static_route_1_nexthop'] }}
+      interfaceName: {{ data['static_route_1_interface'] }}
+      metric: {{ data['static_route_1_metric'] }}
+      advertise: {{ data['static_route_1_advertise'] }}
+      advertiseToBgp: {{ data['static_route_1_advertiseToBgp'] | default ("false",true) }}
+      advertiseToOspf: {{ data['static_route_1_advertiseToOspf'] | default ("false",true) }}
+      tag: {{ data['static_route_1_tag'] | default ("ANY",true) }}
+      comment: {{ data['static_route_1_comment'] | default ("",false) }}
+    {%+ endif %}
+    {% if data['static_route_2_subnet'] is defined and data['static_route_2_subnet'] != "" %}
+    - routeIpSubnet: {{ data['static_route_2_subnet'] }}
+      nextHop: {{ data['static_route_2_nexthop'] }}
+      interfaceName: {{ data['static_route_2_interface'] }}
+      metric: {{ data['static_route_2_metric'] }}
+      advertise: {{ data['static_route_2_advertise'] }}
+      advertiseToBgp: {{ data['static_route_2_advertiseToBgp'] | default ("false",true) }}
+      advertiseToOspf: {{ data['static_route_2_advertiseToOspf'] | default ("false",true) }}
+      tag: {{ data['static_route_2_tag'] | default ("ANY",true) }}
+      comment: {{ data['static_route_2_comment'] | default ("",false) }}
+    {%+ endif %}
+
+
 ecLicensing:
 
   useDefaultAccount: true
   bandwidthLevel: {{ data['license_bandwidth'] | default ("10000", false) }}
   boost: {{ data['license_boost'] | default ("", false) }}
 
-{% if data['silverpeak_bgp_asn'] != "" %}
+{% if data['silverpeak_bgp_asn'] is defined and data['silverpeak_bgp_asn'] != "" %}
 bgpSystemConfig:
   enable: true
   asn: {{ data['silverpeak_bgp_asn'] }}
-  routerId: {{ data['silverpeak_bgp_id'] }}
+  routerId: {{ data['silverpeak_routerId'] }}
   enableGracefulRestart: false
   maxRestartTime: 120
   maxStalePathTime: 150
@@ -245,4 +270,46 @@ bgpSystemConfig:
       keepAlive: 30
       holdTime: 90
       password:
+{% endif %}
+
+
+{% if data['enable_ospf'] is defined and data['enable_ospf'] == 'TRUE' %}
+ospfSystemConfig:
+  enable: true
+  routerId: {{ data['silverpeak_routerId'] | default ("",false) }}
+  redistMapToOspf: {{ data['redistMapToOspf'] | default ("default_rtmap_to_ospf",false) }}
+  interfaces:
+    {%- if data['ospf_interface_1_name'] != "" %}
+    - interfaceName: {{ data['ospf_interface_1_name'] }}
+      areaId: {{ data['ospf_area'] }}
+      cost: {{ data['ospf_interface_1_cost'] | default ("1",true) }}
+      priority: {{ data['ospf_interface_1_priority'] | default ("1",true) }}
+      adminStatus: Up
+      helloInterval: 10
+      deadInterval: 40
+      transmitDelay: 1
+      retransmitInterval: 4
+      authentication: None
+      authenticationKey:
+      md5Key: 0
+      md5Password:
+      comment: {{ data['ospf_interface_1_comment'] | default ("",false) }}
+    {%+ endif -%}
+    {%- if data['ospf_interface_2_name'] != "" %}
+    - interfaceName: {{ data['ospf_interface_2_name'] }}
+      areaId: {{ data['ospf_area'] }}
+      cost: {{ data['ospf_interface_2_cost'] | default ("1",true) }}
+      priority: {{ data['ospf_interface_2_priority'] | default ("1",true) }}
+      adminStatus: Up
+      helloInterval: 10
+      deadInterval: 40
+      transmitDelay: 1
+      retransmitInterval: 4
+      authentication: None
+      authenticationKey:
+      md5Key: 0
+      md5Password:
+      comment: {{ data['ospf_interface_2_comment'] | default ("",false) }}
+    {%+ endif -%}
+
 {% endif %}
