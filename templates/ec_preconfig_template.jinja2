@@ -47,9 +47,15 @@ deploymentInfo:
       interfaceType: lan
       interfaceComment: {{ data['lan_interface_1_desc'] | default("",false) }}
       ipAddressMask: {{ data['lan_interface_1_ipmask'] }}
-      nextHop: {{ data['lan_interface_1_nexthop'] | default("",false) }}
-      segment: {{ data['lan_interface_1_segment'] | default("",false) }}
-      zone: {{ data['lan_interface_1_zone'] | default("",false) }}
+    {%- if data['lan_interface_1_nexthop'] is defined and data['lan_interface_1_nexthop'] != "" %}
+      nextHop: {{ data['lan_interface_1_nexthop'] }}
+    {%- endif -%}
+    {%- if data['lan_interface_1_segment'] is defined and data['lan_interface_1_segment'] != "" %}
+      segment: {{ data['lan_interface_1_segment'] }}
+    {%- endif -%}
+    {%- if data['lan_interface_1_zone'] is defined and data['lan_interface_1_zone'] != "" %}
+      zone: {{ data['lan_interface_1_zone'] }}
+    {%- endif -%}
 {%+ endif %}
 
 {%+ if data['lan_interface_2_name'] is defined and data['lan_interface_2_name'] != "" %}
@@ -57,9 +63,15 @@ deploymentInfo:
       interfaceType: lan
       interfaceComment: {{ data['lan_interface_2_desc'] | default("",false) }}
       ipAddressMask: {{ data['lan_interface_2_ipmask'] }}
-      nextHop: {{ data['lan_interface_2_nexthop'] | default("",false) }}
-      segment: {{ data['lan_interface_2_segment'] | default("",false) }}
-      zone: {{ data['lan_interface_2_zone'] | default("",false) }}
+    {%- if data['lan_interface_2_nexthop'] is defined and data['lan_interface_2_nexthop'] != "" %}
+      nextHop: {{ data['lan_interface_2_nexthop'] }}
+    {%- endif -%}
+    {%- if data['lan_interface_2_segment'] is defined and data['lan_interface_2_segment'] != "" %}
+      segment: {{ data['lan_interface_2_segment'] }}
+    {%- endif -%}
+    {%- if data['lan_interface_2_zone'] is defined and data['lan_interface_2_zone'] != "" %}
+      zone: {{ data['lan_interface_2_zone'] }}
+    {%- endif -%}
 {%+ endif %}
 
 {%+ if data['lan_interface_3_name'] is defined and data['lan_interface_3_name'] != "" %}
@@ -67,9 +79,15 @@ deploymentInfo:
       interfaceType: lan
       interfaceComment: {{ data['lan_interface_3_desc'] | default("",false) }}
       ipAddressMask: {{ data['lan_interface_3_ipmask'] }}
-      nextHop: {{ data['lan_interface_3_nexthop'] | default("",false) }}
-      segment: {{ data['lan_interface_3_segment'] | default("",false) }}
-      zone: {{ data['lan_interface_3_zone'] | default("",false) }}
+    {%- if data['lan_interface_3_nexthop'] is defined and data['lan_interface_3_nexthop'] != "" %}
+      nextHop: {{ data['lan_interface_3_nexthop'] }}
+    {%- endif -%}
+    {%- if data['lan_interface_3_segment'] is defined and data['lan_interface_3_segment'] != "" %}
+      segment: {{ data['lan_interface_3_segment'] }}
+    {%- endif -%}
+    {%- if data['lan_interface_3_zone'] is defined and data['lan_interface_3_zone'] != "" %}
+      zone: {{ data['lan_interface_3_zone'] }}
+    {%- endif -%}
 {%+ endif %}
 
 
@@ -80,12 +98,10 @@ deploymentInfo:
       interfaceLabel: {{ data['wan_interface_1_label'] | default("",false) }}
       outboundMaxBandwidth: {{ data['wan_interface_1_max_outbound_bw'] | default("10000",false) }}
       inboundMaxBandwidth: {{ data['wan_interface_1_max_inbound_bw'] | default("10000",false) }}
-      ipAddressMask: {{ data['wan_interface_1_ipmask'] | default("",false) }}
-      {%+ if data['wan_interface_1_ipmask'] != "" -%}
+    {%+ if data['wan_interface_1_ipmask'] is defined and data['wan_interface_1_ipmask'] != "" %}
+      ipAddressMask: {{ data['wan_interface_1_ipmask'] }}
       nextHop: {{ data['wan_interface_1_nexthop'] }}
-      {%+ else -%}
-      nextHop:
-      {%+ endif -%}
+    {%+ endif %}
       firewallMode: {{ data['wan_interface_1_firewall_mode'] | default("all",true) }}
       behindNat: {{ data['wan_interface_1_behind_nat'] | default("none",true) }}
       zone: {{ data['wan_interface_1_zone'] | default("",false) }}
@@ -214,6 +230,7 @@ localRoutes:
   filterRoutesWithLocalASN: {{ data['filterRoutesWithLocalASN'] | default ("true",true) }}
   redistToSDwanFabricRouteMap: {{ data['redistToSDwanFabricRouteMap'] | default ("default_rtmap_to_subsh",true) }}
 
+{% if data['static_route_1_subnet'] is defined and data['static_route_1_subnet'] != "" %}
   routes:
     {% if data['static_route_1_subnet'] is defined and data['static_route_1_subnet'] != "" %}
     - routeIpSubnet: {{ data['static_route_1_subnet'] }}
@@ -237,7 +254,7 @@ localRoutes:
       tag: {{ data['static_route_2_tag'] | default ("ANY",true) }}
       comment: {{ data['static_route_2_comment'] | default ("",false) }}
     {%+ endif %}
-
+{%+ endif %}
 
 ecLicensing:
 
