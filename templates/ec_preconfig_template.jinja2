@@ -35,11 +35,16 @@ businessIntentOverlays:
 
 deploymentInfo:
   deploymentMode: {{ data['deploymentMode'] | default("inline-router",true) }}
-  totalOutboundBandwidth: {{ data['totalOutboundBandwidth'] | default("10000",true) }}
-  totalInboundBandwidth: {{ data['totalInboundBandwidth'] | default("10000",true) }}
+  {% if data['wan_interface_1_max_outbound_bw'] is defined or data['wan_interface_2_max_outbound_bw'] is defined %}
+  totalOutboundBandwidth: {{ data['totalOutboundBandwidth'] | default(data['wan_interface_1_max_outbound_bw'] + data['wan_interface_2_max_outbound_bw'],true) }}
+  {% endif %}
+  {% if data['wan_interface_1_max_inbound_bw'] is defined or data['wan_interface_2_max_inbound_bw'] is defined %}
+  totalInboundBandwidth: {{ data['totalInboundBandwidth'] | default(data['wan_interface_1_max_inbound_bw'] + data['wan_interface_2_max_inbound_bw'],true) }}
+  {% endif %}
   shapeInboundTraffic: {{ data['shapeInboundTraffic'] | default("true",true) }}
   passThroughShapedTraffic:
-    outboundMaxBandwidth: {{ data['outboundMaxBandwidth'] | default("10000",true) }}
+    outboundMaxBandwidth: {{ data['outboundMaxBandwidth'] | default(data['wan_interface_1_max_outbound_bw'] + data['wan_interface_2_max_outbound_bw'],true) }}
+
 
   deploymentInterfaces:
 {%+ if data['lan_interface_1_name'] is defined and data['lan_interface_1_name'] != "" %}
@@ -108,7 +113,54 @@ deploymentInfo:
 {%+ endif -%}
 
 
-{%+ if data['configure_dhcp'] == 'TRUE' %}
+{%+ if data['wan_interface_2_name'] is defined and data['wan_interface_2_name'] != "" %}
+    - interfaceName: {{ data['wan_interface_2_name'] }}
+      interfaceType: wan
+      interfaceComment: {{ data['wan_interface_2_desc'] | default("",false) }}
+      interfaceLabel: {{ data['wan_interface_2_label'] | default("",false) }}
+      outboundMaxBandwidth: {{ data['wan_interface_2_max_outbound_bw'] | default("10000",false) }}
+      inboundMaxBandwidth: {{ data['wan_interface_2_max_inbound_bw'] | default("10000",false) }}
+    {%+ if data['wan_interface_2_ipmask'] is defined and data['wan_interface_2_ipmask'] != "" %}
+      ipAddressMask: {{ data['wan_interface_2_ipmask'] }}
+      nextHop: {{ data['wan_interface_2_nexthop'] }}
+    {%+ endif %}
+      firewallMode: {{ data['wan_interface_2_firewall_mode'] | default("all",true) }}
+      behindNat: {{ data['wan_interface_2_behind_nat'] | default("none",true) }}
+      zone: {{ data['wan_interface_2_zone'] | default("",false) }}
+{%+ endif -%}
+
+{%+ if data['haPeerHostname'] is defined and data['haPeerHostname'] != "" %}
+  haConfig:
+    haPeerHostname: {{ data['haPeerHostname'] }}
+    haIpPool: {{ data['haIpPool'] | default ("169.254.1.0/24",true) }}
+    haSubnetMask: {{ data['haSubnetMask'] | default ("30",true) }}
+    haVlanStart: {{ data['haVlanStart'] | default ("100",true) }}
+    haInterface: {{ data['haInterface'] }}
+    {%+ if data['haInterfaceOrder'] is defined and data['haInterfaceOrder'] != "" %}
+    haInterfaceOrder: {% for haInterface in data['haInterfaceOrder']  %}
+    {{ haInterface }}
+    {%- if not loop.last %},{% endif %}
+    {% endfor %}
+    {%+ endif -%}
+    haPeerInterfaceInfo:
+    {%+ if data['haPeerInterfaceInfo_1_label'] is defined and data['haPeerInterfaceInfo_1_label'] != "" %}
+    - interfaceLabel: {{ data['haPeerInterfaceInfo_1_label'] | default("",false) }}
+      outbound: {{ data['haPeerInterfaceInfo_1_outbound'] | default("10000",true) }}
+      inbound: {{ data['haPeerInterfaceInfo_1_outbound'] | default("10000",true) }}
+      segment: {{ data['haPeerInterfaceInfo_1_segment'] | default("Default",true) }}
+      zone: {{ data['haPeerInterfaceInfo_1_zone'] | default("",false) }}
+    {%+ endif -%}
+    {%+ if data['haPeerInterfaceInfo_2_label'] is defined and data['haPeerInterfaceInfo_2_label'] != "" %}
+    - interfaceLabel: {{ data['haPeerInterfaceInfo_2_label'] | default("",false) }}
+      outbound: {{ data['haPeerInterfaceInfo_2_outbound'] | default("10000",true) }}
+      inbound: {{ data['haPeerInterfaceInfo_2_outbound'] | default("10000",true) }}
+      segment: {{ data['haPeerInterfaceInfo_2_segment'] | default("Default",true) }}
+      zone: {{ data['haPeerInterfaceInfo_2_zone'] | default("",false) }}
+    {%+ endif -%}
+
+{%+ endif -%}
+
+{%+ if (data['dhcp_interface_1'] is defined and data['dhcp_interface_1'] != "") or (data['dhcp_interface_2'] is defined and data['dhcp_interface_2'] != "") or (data['dhcp_interface_3'] is defined and data['dhcp_interface_3'] != "") %}
 
   dhcpInfo:
 

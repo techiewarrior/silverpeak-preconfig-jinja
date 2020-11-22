@@ -2,7 +2,6 @@ from dotenv import load_dotenv
 import csv
 from jinja2 import Template, FileSystemLoader, Environment, PackageLoader, select_autoescape
 import yaml
-import time
 import colored
 from colored import stylize
 

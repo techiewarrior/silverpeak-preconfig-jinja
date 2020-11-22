@@ -1,5 +1,13 @@
 # Generate Silver Peak Preconfig YAML files from Jinja Templates
 
+
+### CSV Generator:
+##### create_preconfig_csv.py
+
+- Takes in jinja2 template and creates headers for all unique variables in 'preconfig_template.csv'
+- Use this CSV with values for the Preconfig Generator script
+- Not all variables are mandatory for preconfig
+
 ### Preconfig Generator:
 ##### silverpeak-preconfig-from-jinja.py
 
