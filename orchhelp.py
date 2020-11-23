@@ -60,7 +60,7 @@ class OrchHelper:
         if response.status_code == 200:
             return True
         else:
-            print("Failed to delete appliance id:{0} from Orch at {1}".format(preconfigId,self.ipaddress))
+            print("Failed to delete appliance id:{0} from Orch at {1}".format(nePk,self.ipaddress))
             return False
 
     def get_all_denied_appliances(self):

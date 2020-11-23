@@ -7,6 +7,7 @@
 - Takes in jinja2 template and creates headers for all unique variables in 'preconfig_template.csv'
 - Use this CSV with values for the Preconfig Generator script
 - Not all variables are mandatory for preconfig
+- There is an example CSV file with values included 'example.csv'
 
 ### Preconfig Generator:
 ##### silverpeak-preconfig-from-jinja.py
