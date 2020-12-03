@@ -1,17 +1,23 @@
-from dotenv import load_dotenv
+# Standard library imports
 import csv
-from jinja2 import Template, FileSystemLoader, Environment, PackageLoader, select_autoescape
-import yaml
+import datetime
+import json
+import os
 import time
+import urllib3
+from urllib3.exceptions import InsecureRequestWarning
+import yaml
+
+# Third party imports
 import colored
 from colored import stylize
+from dotenv import load_dotenv
+from jinja2 import Template, FileSystemLoader, Environment, PackageLoader, select_autoescape
 
-# Silver Peak Orchestrator Connectors
-from orchhelp import OrchHelper
+# Local application imports
+from sp_orchhelper import OrchHelper
 import post_yaml_to_orch
 
-# For SFTP Transfer of Switch Config
-import os
 
 def comma_separate(cs_string_list):
     # Blank List
@@ -23,6 +29,9 @@ def comma_separate(cs_string_list):
         cs_list.append(item.strip())
     return cs_list
 
+# Disable Certificate Warnings
+urllib3.disable_warnings(category=InsecureRequestWarning)
+
 # Console text highlight color parameters
 red_text = colored.fg("red") + colored.attr("bold")
 green_text = colored.fg("green") + colored.attr("bold")
@@ -33,9 +42,8 @@ orange_text = colored.fg("dark_orange") + colored.attr("bold")
 load_dotenv()
 
 # Set Orchestrator login from .env
-orch = OrchHelper(str(os.getenv('ORCH_IP_ADDRESS')))
-orch.user = os.getenv('ORCH_USERNAME')
-orch.password = os.getenv('ORCH_PASSWORD')
+orch = OrchHelper(str(os.getenv('ORCH_URL')), os.getenv('ORCH_USER'), os.getenv('ORCH_PASSWORD'))
+
 
 # Retrieve Jinja2 template for generating EdgeConnect Preconfig YAML file
 env = Environment(loader=FileSystemLoader("templates"))

@@ -1,3 +1,3 @@
-ORCH_IP_ADDRESS="orchestrator_url_or_ip"
-ORCH_USERNAME="orchestrator_username"
+ORCH_URL="orchestrator_url_or_ip"
+ORCH_USER="orchestrator_username"
 ORCH_PASSWORD="orchestrator_password"
