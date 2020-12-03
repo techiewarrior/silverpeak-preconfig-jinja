@@ -126,9 +126,10 @@ with open(filename, encoding='utf-8-sig') as csvfile:
             with open(local_config_directory + output_filename, 'w') as preconfig_file:
                 write_data = preconfig_file.write(preconfig)
 
-            # If option was chosen, upload preconfig to Orchestrator with selected auto-approve settings
+            # If option was chosen, upload preconfig to Orchestrator with selected auto-apply settings
             if upload_to_orch == "y":
-                post_yaml_to_orch.post(orch, row['hostname'], row['serial_number'], yaml.dump(yaml.load(preconfig,Loader=yaml.SafeLoader), default_flow_style=False), autoApply)
+                #post_yaml_to_orch.post(orch, row['hostname'], row['serial_number'], yaml.dump(yaml.load(preconfig,Loader=yaml.SafeLoader), default_flow_style=False), autoApply)
+                post_yaml_to_orch.post(orch, row['hostname'], row['serial_number'], preconfig, autoApply)
                 print("Posted EC Preconfig " + stylize(row['hostname'],blue_text))
             else:
                 pass
