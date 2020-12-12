@@ -19,4 +19,5 @@ preconfig_outputs/
 silverpeak_python_sdk/
 
 # Logging
+logging/
 *.log
