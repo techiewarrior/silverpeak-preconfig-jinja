@@ -15,4 +15,8 @@ __pycache__/
 # Config Outputs
 preconfig_outputs/
 
+# Silver Peak Python SDK
+silverpeak_python_sdk/
 
+# Logging
+*.log

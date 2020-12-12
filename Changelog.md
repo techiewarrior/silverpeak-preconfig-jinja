@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.2.0-alpha ()
+
+### 🚀 Features
+
+- Integrated to silverpeak_python_sdk 0.3.0 release
+
+### 🐛 Bug Fixes
+
+### 📚 Documentation
+
+### 🧰 Miscellaneous
+
+- Removed old post_yaml_to_orch and incorporated functions into silverpeak_python_sdk
+
+### 💥 Breaking Changes
+
 ## 0.1.0-alpha ()
 
 ### 🚀 Features
