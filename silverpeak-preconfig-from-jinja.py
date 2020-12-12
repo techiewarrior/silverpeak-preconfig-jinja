@@ -1,4 +1,5 @@
 # Standard library imports
+import argparse
 import csv
 import datetime
 import json
@@ -23,6 +24,9 @@ from urllib3.exceptions import InsecureRequestWarning
 # Local application imports
 from silverpeak_python_sdk import OrchHelper
 
+# Disable Certificate Warnings
+urllib3.disable_warnings(category=InsecureRequestWarning)
+
 
 def comma_separate(cs_string_list):
     # Blank List
@@ -35,8 +39,53 @@ def comma_separate(cs_string_list):
     return cs_list
 
 
-# Disable Certificate Warnings
-urllib3.disable_warnings(category=InsecureRequestWarning)
+def get_csv_file():
+    # Enter source CSV file for config generation data
+    correct_file = "n"
+
+    while correct_file != "y":
+        filename = input("Please enter source csv filename: ")
+        print(
+            "Using " + stylize(filename, green_text) + " for configuration source data"
+        )
+        correct_file = input(
+            "Do you want to proceed with that source file?(y/n, q to quit): "
+        )
+        if correct_file == "q":
+            exit()
+        else:
+            pass
+
+    return filename
+
+
+def prompt_for_orch_upload():
+    # Check if user wants to upload preconfigs to Orchestrator
+    upload_to_orch = input(
+        "Upload the generated Preconfigs to Orchestrator?(y/n, other key to quit): "
+    )
+    if upload_to_orch == "y":
+        return True
+    if upload_to_orch == "n":
+        return False
+    else:
+        exit()
+
+
+def prompt_for_auto_apply(discovered_appiance_type):
+    # Check if user wants to auto-approve appliances matching uploaded preconfigs
+    auto_approve_check = input(
+        "Do you want to auto-approve {} appliances matching the preconfigs?(y/n, other to quit): ".format(
+            discovered_appiance_type
+        )
+    )
+    if auto_approve_check == "y":
+        return True
+    elif auto_approve_check == "n":
+        return False
+    else:
+        exit()
+
 
 # Console text highlight color parameters
 red_text = colored.fg("red") + colored.attr("bold")
@@ -47,12 +96,33 @@ orange_text = colored.fg("dark_orange") + colored.attr("bold")
 # Load environment variables
 load_dotenv()
 
+# Parse arguments
+## TODO add arguments for orch url
+## TODO add arguments for vault url
+## TODO how to prompt for vault auth
+## TODO add arguments for jinja template
+parser = argparse.ArgumentParser()
+parser.add_argument(
+    "--upload", help="Upload created preconfigs to Orchestrator", type=bool
+)
+parser.add_argument(
+    "--autoapply", help="Mark uploadded preconfigs for auto-approve", type=bool
+)
+parser.add_argument(
+    "--autodenied",
+    help="Approve and apply preconfig to matching denied appliances",
+    type=bool,
+)
+parser.add_argument("--csv", help="source csv file for preconfigs", type=str)
+args = parser.parse_args()
+
+## TODO if vault argument or vault url not present
 # Set Orchestrator login from .env
 orch = OrchHelper(str(os.getenv("ORCH_URL")))
 orch_user = os.getenv("ORCH_USER")
 orch_pw = os.getenv("ORCH_PASSWORD")
 
-
+## TODO default to this template if argument not set
 # Retrieve Jinja2 template for generating EdgeConnect Preconfig YAML file
 env = Environment(loader=FileSystemLoader("templates"))
 ec_template_file = "ec_preconfig_template.jinja2"
@@ -65,54 +135,42 @@ print(
 
 # Local directory for configuration outputs
 local_config_directory = "preconfig_outputs/"
-
 if not os.path.exists(local_config_directory):
     os.makedirs(local_config_directory)
 
-
-# Enter source CSV file for config generation data
-correct_file = "n"
-
-while correct_file != "y":
-    filename = input("Please enter source csv filename: ")
-    print(
-        "Using {} for configuration source data".format(stylize(filename, green_text))
-    )
-    correct_file = input(
-        "Do you want to proceed with that source file?(y/n, q to quit): "
-    )
-    if correct_file == "q":
-        exit()
-    else:
-        pass
-
-# Default auto_apply to False
-auto_apply = False
-
-# Check if user wants to upload preconfigs to Orchestrator
-upload_to_orch = input(
-    "Do you want to upload the generated Preconfigs to Orchestrator?(y/n, other to quit): "
-)
-if upload_to_orch == "y":
-    # Connect to Orchestrator
-    orch.login(orch_user, orch_pw)
-
-    # Check if user wants to auto-approve appliances matching uploaded preconfigs
-    auto_approve_check = input(
-        "Do you want to auto-approve discovered appliances matching the preconfigs?(y/n, other to quit): "
-    )
-    if auto_approve_check == "y":
-        auto_apply = True
-    elif auto_approve_check == "n":
-        auto_apply = False
-    else:
-        exit()
-elif upload_to_orch == "n":
-    pass
+# Obtain CSV file for generating preconfigs
+if vars(args)["csv"] is not None:
+    csv_filename = vars(args)["csv"]
 else:
-    exit()
+    get_csv_file()
+
+# Check if configs should be uploaded to Orchestrator
+if vars(args)["upload"] is not None:
+    upload_to_orch = vars(args)["upload"]
+else:
+    upload_to_orch = prompt_for_orch_upload()
+
+# If uploading to Orchestrator check if preconfigs should be marked for auto-approve
+if vars(args)["autoapply"] is not None:
+    auto_apply = vars(args)["autoapply"]
+elif upload_to_orch == True:
+    auto_apply = prompt_for_auto_apply("DISCOVERED")
+else:
+    pass
+
+# If auto-apply, check if should also approve matching appliances that are currently denied
+if vars(args)["autodenied"] is not None:
+    auto_apply_denied = vars(args)["autodenied"]
+elif auto_apply == True:
+    auto_apply_denied = prompt_for_auto_apply("DENIED")
+else:
+    pass
 
 
+# Connect to Orchestrator
+orch.login(orch_user, orch_pw)
+
+# Open CSV file
 with open(filename, encoding="utf-8-sig") as csvfile:
     csv_dict = csv.DictReader(csvfile)
 
@@ -144,19 +202,24 @@ with open(filename, encoding="utf-8-sig") as csvfile:
             # Render Jinja template
             preconfig = ec_template.render(data=row)
 
-            # Write local YAML file
-            output_filename = row["hostname"] + "_preconfig.yml"
+            # Validate preconfig via Orchestrator
+            validate = orch.validate_preconfig(
+                row["hostname"], row["serial_number"], preconfig, auto_apply
+            )
 
-            with open(local_config_directory + output_filename, "w") as preconfig_file:
-                write_data = preconfig_file.write(preconfig)
+            if validate.status_code == 200:
 
-            # If option was chosen, upload preconfig to Orchestrator with selected auto-apply settings
-            if upload_to_orch == "y":
+                # Write local YAML file
+                output_filename = row["hostname"] + "_preconfig.yml"
 
-                validate = orch.validate_preconfig(
-                    row["hostname"], row["serial_number"], preconfig, auto_apply
-                )
-                if validate.status_code == 200:
+                with open(
+                    local_config_directory + output_filename, "w"
+                ) as preconfig_file:
+                    write_data = preconfig_file.write(preconfig)
+
+                # If option was chosen, upload preconfig to Orchestrator with selected auto-apply settings
+                if upload_to_orch == True:
+
                     orch.create_preconfig(
                         row["hostname"],
                         row["serial_number"],
@@ -169,14 +232,9 @@ with open(filename, encoding="utf-8-sig") as csvfile:
                         )
                     )
                 else:
-                    print(
-                        "Failed to post EC Preconfig {}".format(
-                            stylize(row["hostname"], blue_text)
-                        )
-                    )
-                    print(validate.text)
+                    pass
             else:
-                pass
+                print("Preconfig failed validation")
 
             row_number = row_number + 1
 
@@ -191,7 +249,7 @@ with open(filename, encoding="utf-8-sig") as csvfile:
 
 
 # If auto-apply option was chosen, also approve any matching appliances in denied discovered list
-if auto_apply == True:
+if auto_apply_denied == True:
 
     # Retrieve all denied discovered appliances from Orchestrator
     all_denied_appliances = orch.get_all_denied_appliances()
@@ -231,7 +289,4 @@ else:
     pass
 
 # Logout from Orchestrator if logged in
-if upload_to_orch == "y":
-    orch.logout()
-else:
-    pass
+orch.logout()
