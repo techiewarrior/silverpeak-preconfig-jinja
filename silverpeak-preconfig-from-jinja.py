@@ -12,13 +12,8 @@ import urllib3
 import yaml
 from colored import stylize
 from dotenv import load_dotenv
-from jinja2 import (
-    Environment,
-    FileSystemLoader,
-    PackageLoader,
-    Template,
-    select_autoescape,
-)
+from jinja2 import (Environment, FileSystemLoader, PackageLoader, Template,
+                    select_autoescape)
 from urllib3.exceptions import InsecureRequestWarning
 
 # Local application imports
@@ -113,19 +108,40 @@ parser.add_argument(
     help="Approve and apply preconfig to matching denied appliances",
     type=bool,
 )
-parser.add_argument("--csv", help="source csv file for preconfigs", type=str)
+parser.add_argument("--csv", help="specify source csv file for preconfigs", type=str)
+parser.add_argument("--jinja", help="specify source jinja2 template", type=str)
+parser.add_argument("--vault", help="specify source vault URL", type=str)
+parser.add_argument("--orch, -o", help="specify Orchestrator URL", type=str)
 args = parser.parse_args()
 
-## TODO if vault argument or vault url not present
-# Set Orchestrator login from .env
-orch = OrchHelper(str(os.getenv("ORCH_URL")))
-orch_user = os.getenv("ORCH_USER")
-orch_pw = os.getenv("ORCH_PASSWORD")
+# If Vault argument or Vault URL present in env
+# retrieve Orch credentials from Vault
+if vars(args)["vault"] is not None:
+    vault_url = vars(args)["vault"]
+elif os.getenv("VAULT_URL") is not None:
+    vault_url = os.getenv("VAULT_URL")
+elif vars(args)["orch"] is not None::
+    orch = OrchHelper(vars(args)["orch"])
+    orch_user = os.getenv("ORCH_USER")
+    orch_pw = os.getenv("ORCH_PASSWORD")
+else:
+    orch = OrchHelper(str(os.getenv("ORCH_URL")))
+    orch_user = os.getenv("ORCH_USER")
+    orch_pw = os.getenv("ORCH_PASSWORD")
 
-## TODO default to this template if argument not set
+
+## TODO
+# Get Orch credentials from VAULT
+
+
+# Obtain Jinja2 template file for generating preconfig
+if vars(args)["jinja"] is not None:
+    ec_template_file = vars(args)["csv"]
+else:
+    ec_template_file = "ec_preconfig_template.jinja2"
+
 # Retrieve Jinja2 template for generating EdgeConnect Preconfig YAML file
 env = Environment(loader=FileSystemLoader("templates"))
-ec_template_file = "ec_preconfig_template.jinja2"
 ec_template = env.get_template(ec_template_file)
 print(
     "Using {} for EdgeConnect jinja template".format(
