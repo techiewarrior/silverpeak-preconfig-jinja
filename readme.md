@@ -4,14 +4,14 @@
 ##### silverpeak-preconfig-from-jinja.py
 
 - Takes in CSV file with data for Silver Peak Edge Connects
-- Builds YAML configs and stores locally
-- *Optionally* stages preconfigs to Orchestrator
-- *Optionally* marks preconfigs for auto-approve or automatically approves if in denied-discovered list
-
+- Validates YAML Preconfig on specified Orchestrator
+- If valid, writes local copies of YAML Preconfig files
+- *Optionally* stages Preconfigs to Orchestrator
+- *Optionally* marks Preconfigs for auto-approve or automatically approves if in denied-discovered list
 
 
 #### INSTALL NOTES:
-1. This uses a custom orchhelp.py from SPOpenSource for additional functions to Orchestrator
+1. Dependent on [silverpeak_python_sdk](https://github.com/zachcamara/silverpeak_python_sdk)
 
 2. Create .env file with appropriate values - modeled in dotenv.txt
   - Silver Peak Orchestrator IP or FQDN

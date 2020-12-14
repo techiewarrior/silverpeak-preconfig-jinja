@@ -19,10 +19,10 @@ from jinja2 import (
     Template,
     select_autoescape,
 )
-from urllib3.exceptions import InsecureRequestWarning
 
 # Local application imports
-from silverpeak_python_sdk import OrchHelper
+from silverpeak_python_sdk import Orchestrator
+from urllib3.exceptions import InsecureRequestWarning
 
 # Disable Certificate Warnings
 urllib3.disable_warnings(category=InsecureRequestWarning)
@@ -111,7 +111,7 @@ parser.add_argument(
 parser.add_argument("--csv", help="specify source csv file for preconfigs", type=str)
 parser.add_argument("--jinja", help="specify source jinja2 template", type=str)
 parser.add_argument("--vault", help="specify source vault URL", type=str)
-parser.add_argument("--orch, -o", help="specify Orchestrator URL", type=str)
+parser.add_argument("--orch", help="specify Orchestrator URL", type=str)
 args = parser.parse_args()
 
 # Load environment variables
@@ -124,17 +124,13 @@ if vars(args)["vault"] is not None:
 elif os.getenv("VAULT_URL") is not None:
     vault_url = os.getenv("VAULT_URL")
 elif vars(args)["orch"] is not None:
-    orch = OrchHelper(vars(args)["orch"])
+    orch = Orchestrator(vars(args)["orch"])
     orch_user = os.getenv("ORCH_USER")
     orch_pw = os.getenv("ORCH_PASSWORD")
 else:
-    orch = OrchHelper(str(os.getenv("ORCH_URL")))
+    orch = Orchestrator(str(os.getenv("ORCH_URL")))
     orch_user = os.getenv("ORCH_USER")
     orch_pw = os.getenv("ORCH_PASSWORD")
-
-
-## TODO
-# Get Orch credentials from VAULT
 
 
 # Obtain Jinja2 template file for generating preconfig
@@ -161,7 +157,7 @@ if not os.path.exists(local_config_directory):
 if vars(args)["csv"] is not None:
     csv_filename = vars(args)["csv"]
 else:
-    get_csv_file()
+    csv_filename = get_csv_file()
 
 # Check if configs should be uploaded to Orchestrator
 if vars(args)["upload"] is not None:
@@ -175,7 +171,7 @@ if vars(args)["autoapply"] is not None:
 elif upload_to_orch == True:
     auto_apply = prompt_for_auto_apply("DISCOVERED")
 else:
-    pass
+    auto_apply = False
 
 # If auto-apply, check if should also approve matching appliances that are currently denied
 if vars(args)["autodenied"] is not None:
@@ -183,7 +179,7 @@ if vars(args)["autodenied"] is not None:
 elif auto_apply == True:
     auto_apply_denied = prompt_for_auto_apply("DENIED")
 else:
-    pass
+    auto_apply_denied = False
 
 
 # Connect to Orchestrator
