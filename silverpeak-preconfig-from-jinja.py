@@ -12,8 +12,13 @@ import urllib3
 import yaml
 from colored import stylize
 from dotenv import load_dotenv
-from jinja2 import (Environment, FileSystemLoader, PackageLoader, Template,
-                    select_autoescape)
+from jinja2 import (
+    Environment,
+    FileSystemLoader,
+    PackageLoader,
+    Template,
+    select_autoescape,
+)
 from urllib3.exceptions import InsecureRequestWarning
 
 # Local application imports
@@ -39,9 +44,11 @@ def get_csv_file():
     correct_file = "n"
 
     while correct_file != "y":
-        filename = input("Please enter source csv filename: ")
+        csv_filename = input("Please enter source csv filename: ")
         print(
-            "Using " + stylize(filename, green_text) + " for configuration source data"
+            "Using {} for configuration source data".format(
+                stylize(csv_filename, green_text)
+            )
         )
         correct_file = input(
             "Do you want to proceed with that source file?(y/n, q to quit): "
@@ -51,7 +58,7 @@ def get_csv_file():
         else:
             pass
 
-    return filename
+    return csv_filename
 
 
 def prompt_for_orch_upload():
@@ -88,14 +95,7 @@ green_text = colored.fg("green") + colored.attr("bold")
 blue_text = colored.fg("steel_blue_1b") + colored.attr("bold")
 orange_text = colored.fg("dark_orange") + colored.attr("bold")
 
-# Load environment variables
-load_dotenv()
-
 # Parse arguments
-## TODO add arguments for orch url
-## TODO add arguments for vault url
-## TODO how to prompt for vault auth
-## TODO add arguments for jinja template
 parser = argparse.ArgumentParser()
 parser.add_argument(
     "--upload", help="Upload created preconfigs to Orchestrator", type=bool
@@ -114,13 +114,16 @@ parser.add_argument("--vault", help="specify source vault URL", type=str)
 parser.add_argument("--orch, -o", help="specify Orchestrator URL", type=str)
 args = parser.parse_args()
 
+# Load environment variables
+load_dotenv()
+
 # If Vault argument or Vault URL present in env
 # retrieve Orch credentials from Vault
 if vars(args)["vault"] is not None:
     vault_url = vars(args)["vault"]
 elif os.getenv("VAULT_URL") is not None:
     vault_url = os.getenv("VAULT_URL")
-elif vars(args)["orch"] is not None::
+elif vars(args)["orch"] is not None:
     orch = OrchHelper(vars(args)["orch"])
     orch_user = os.getenv("ORCH_USER")
     orch_pw = os.getenv("ORCH_PASSWORD")
@@ -187,7 +190,7 @@ else:
 orch.login(orch_user, orch_pw)
 
 # Open CSV file
-with open(filename, encoding="utf-8-sig") as csvfile:
+with open(csv_filename, encoding="utf-8-sig") as csvfile:
     csv_dict = csv.DictReader(csvfile)
 
     # Set initial row number for row identification
@@ -226,7 +229,7 @@ with open(filename, encoding="utf-8-sig") as csvfile:
             if validate.status_code == 200:
 
                 # Write local YAML file
-                output_filename = row["hostname"] + "_preconfig.yml"
+                output_filename = "{}_preconfig.yml".format(row["hostname"])
 
                 with open(
                     local_config_directory + output_filename, "w"
