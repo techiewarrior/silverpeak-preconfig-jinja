@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.3.0-a1 ()
+
+### 🚀 Features
+
+- Integrated to silverpeak_python_sdk 0.4.0-a1 release
+
+### 🐛 Bug Fixes
+
+- Fixed auto_apply and auto_apply_denied checks
+
+### 📚 Documentation
+
+### 🧰 Miscellaneous
+
+- Updated README
+
+### 💥 Breaking Changes
+
+
 ## 0.2.0-alpha ()
 
 ### 🚀 Features
